@@ -1,0 +1,69 @@
+[
+    {
+      "link": "/beta",
+      "imageUrl": "https://placehold.co/600x400/3498DB/FFFFFF?text=Project+Beta",
+      "name": "Project Beta",
+      "date": "2024-04-10",
+      "diagramsCount": 12,
+      "description": "A next-generation cloud computing platform designed for scalability and efficiency.",
+      "diagrams": [
+        { "name": "Cloud Infrastructure" },
+        { "name": "Microservices Architecture" },
+        { "name": "Load Balancing Diagram" },
+        { "name": "Database Sharding Strategy" },
+        { "name": "Security Model" },
+        { "name": "Network Topology" },
+        { "name": "Scalability Plan" },
+        { "name": "Serverless Workflow" },
+        { "name": "Monitoring & Logging" },
+        { "name": "Backup & Recovery Process" },
+        { "name": "Container Orchestration" },
+        { "name": "Deployment Strategy" }
+      ]
+    },
+    {
+      "link": "/gamma",
+      "imageUrl": "https://placehold.co/600x400/2ECC71/FFFFFF?text=Project+Gamma",
+      "name": "Project Gamma",
+      "date": "2023-12-01",
+      "diagramsCount": 9,
+      "description": "A blockchain-powered security framework ensuring data integrity and transparency.",
+      "diagrams": [
+        { "name": "Blockchain Structure" },
+        { "name": "Smart Contract Workflow" },
+        { "name": "Consensus Mechanism" },
+        { "name": "Transaction Flow" },
+        { "name": "Distributed Ledger Architecture" },
+        { "name": "Encryption Model" },
+        { "name": "Tokenomics" },
+        { "name": "Node Communication Diagram" },
+        { "name": "Security Threat Model" }
+      ]
+    },
+    {
+      "link": "/epsilon",
+      "imageUrl": "https://placehold.co/600x400/F1C40F/FFFFFF?text=Project+Epsilon",
+      "name": "Project Epsilon",
+      "date": "2024-06-20",
+      "diagramsCount": 15,
+      "description": "A research-based initiative leveraging quantum computing for advanced simulations.",
+      "diagrams": [
+        { "name": "Quantum Circuit Design" },
+        { "name": "Quantum Algorithm Flow" },
+        { "name": "Qubit Mapping" },
+        { "name": "Quantum State Transition" },
+        { "name": "Error Correction Model" },
+        { "name": "Quantum Supremacy Benchmark" },
+        { "name": "Multi-Qubit System Diagram" },
+        { "name": "Quantum Entanglement Network" },
+        { "name": "Quantum Cryptography Flow" },
+        { "name": "Hybrid Quantum-Classical Model" },
+        { "name": "Quantum Machine Learning Pipeline" },
+        { "name": "Quantum Key Distribution" },
+        { "name": "Quantum Annealing Process" },
+        { "name": "Quantum Computing Layers" },
+        { "name": "Quantum Hardware Architecture" }
+      ]
+    }
+  ]
+  
