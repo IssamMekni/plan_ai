@@ -1,3 +1,4 @@
+// components/ProjectBtn.tsx
 import { truncateText } from "@/lib/truncateText";
 import { ArrowRight, Workflow } from "lucide-react";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface Project {
   imageUrl: string;
@@ -34,11 +35,8 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
         </p>
       )}
 
-      <div className="flex flex-col  gap-6">
-        <div className="flex-1">
-          {/* <h3 className="font-bold text-lg text-gray-700 hidden sm:block">Diagrams:</h3> */}
-        </div>
-        <div className="relative w-full h-40 rounded-lg  shadow-md">
+      <div className="flex flex-col gap-6">
+        <div className="relative w-full h-40 rounded-lg shadow-md">
           <img
             src={project.imageUrl}
             alt={project.name}
@@ -46,7 +44,7 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
           />
           <div className="">
             <DropdownMenu>
-              <DropdownMenuTrigger className="  absolute bottom-2 right-2 bg-primary/70 text-white px-3 py-1 flex items-center gap-2 rounded-lg text-lg font-semibold">
+              <DropdownMenuTrigger className="absolute bottom-2 right-2 bg-primary/70 text-white px-3 py-1 flex items-center gap-2 rounded-lg text-lg font-semibold">
                 {project.diagramsCount} <Workflow size={20} />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-background/60 backdrop-blur-sm">
@@ -62,10 +60,10 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
       </div>
       <div className="flex justify-between">
         <p className="text-gray-500 text-sm">📅 Date: {project.date}</p>
-        <Link href={project.link} className=" ">
-        <Button className="font-bold text-lg">
-          go <ArrowRight/>
-        </Button>
+        <Link href={project.link}>
+          <Button className="font-bold text-lg">
+            go <ArrowRight />
+          </Button>
         </Link>
       </div>
     </div>
