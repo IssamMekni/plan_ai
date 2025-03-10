@@ -1,0 +1,36 @@
+[
+    {
+      "link": "/",
+      "imageUrl": "https://placehold.co/600x400",
+      "name": "Project Delta",
+      "date": "2024-03-03",
+      "diagramsCount": 7,
+      "description": "A cutting-edge initiative to optimize workflow efficiency.",
+      "diagrams": [
+        { "name": "System Architecture" },
+        { "name": "Workflow Optimization" },
+        { "name": "Data Flow Diagram" },
+        { "name": "Entity Relationship Diagram" },
+        { "name": "Use Case Diagram" },
+        { "name": "Component Diagram" },
+        { "name": "Deployment Diagram" }
+      ]
+    },
+    {
+      "link": "/alpha",
+      "imageUrl": "https://placehold.co/600x400/FF5733/FFFFFF?text=Project+Alpha",
+      "name": "Project Alpha",
+      "date": "2024-02-15",
+      "diagramsCount": 5,
+      "description": "An innovative project focusing on AI-driven solutions to enhance productivity.",
+      "diagrams": [
+        { "name": "Neural Network Model" },
+        { "name": "Algorithm Flowchart" },
+        { "name": "Decision Tree" },
+        { "name": "Data Pipeline" },
+        { "name": "Feature Engineering Map" }
+      ]
+    }
+
+  ]
+  
