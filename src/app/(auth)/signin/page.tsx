@@ -3,11 +3,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import SigninButton from './SigninButton'
-import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/nextAuth'
 
 export default async function Login() {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
   if(session) redirect('/home')
   return (
     

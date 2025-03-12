@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-import { auth } from "../auth";
 import SignoutButton from "./(auth)/SignoutButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/nextAuth";
 
 export default async function UserAvatar() {
-  const session = await auth();
-
+  const session = await getServerSession(authOptions);
+  
   return (
     <div>
       <div className="w-full ">

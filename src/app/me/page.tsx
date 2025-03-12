@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { redirect, useRouter } from 'next/navigation';
 import { CustomSession } from '@/types';
-import prisma from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -22,13 +22,13 @@ export default function MePage() {
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
     const projectSlug = name.toLowerCase().replace(/\s+/g, '-');
-    const newProject = await prisma.project.create({
-      data: {
-        name,
-        description,
-        userId: customSession.user.id,
-      },
-    });
+    // const newProject = await prisma.project.create({
+    //   data: {
+    //     name,
+    //     description,
+    //     userId: customSession.user.id,
+    //   },
+    // });
     setName('');
     setDescription('');
     router.push(`/project/${projectSlug}`);

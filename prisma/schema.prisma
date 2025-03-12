@@ -87,6 +87,7 @@ model User {
   projects      Project[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  Conversation Conversation[]
 }
 
 model Project {
@@ -111,4 +112,3 @@ model Diagram {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
