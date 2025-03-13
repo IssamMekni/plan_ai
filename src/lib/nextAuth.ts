@@ -12,10 +12,12 @@ export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   callbacks: {
     async session({ session, user, token }) {
-      if (user) {
-        session.user.id = user.id; 
-      } else if (token?.sub) {
-        session.user.id = token.sub; // استخدام sub من JWT كمعرف
+      if (session){
+        if (user) {
+          session.user.id = user.id; 
+        } else if (token?.sub) {
+          session.user.id = token.sub; // استخدام sub من JWT كمعرف
+        }
       }
       return session;
     },

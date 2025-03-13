@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 
 export default async function UserAvatar() {
+  ;
   const session = await getServerSession(authOptions);
   
   return (
