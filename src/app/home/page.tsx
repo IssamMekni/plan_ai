@@ -11,7 +11,7 @@ export default function page() {
           {exempl.map((project) => (
             <ProjectBtn key={project.name} project={project} />
           ))}
-          <MoreButton link="/"/>
+          <MoreButton link="/me" />
         </div>
       </div>
       <div className="m-2 md:w-2/3 lg:w-1/2 sm:m-auto grid grid-cols-1 flex-col pt-10 ">
@@ -20,7 +20,7 @@ export default function page() {
           {exempl2.map((project) => (
             <ProjectBtn key={project.name} project={project} />
           ))}
-          <MoreButton link="/"/>
+          <MoreButton link="/" />
         </div>
       </div>
     </div>

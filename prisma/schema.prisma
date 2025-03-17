@@ -94,7 +94,7 @@ model Project {
   id            String    @id @default(cuid())
   name          String
   description   String?
-  imageUrl      String    @default("https://via.placeholder.com/150")
+  imageUrl      String    @default("https://placehold.co/600x400")
   isPublic      Boolean   @default(false)
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)

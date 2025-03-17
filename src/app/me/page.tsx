@@ -1,56 +1,43 @@
-'use client';
+import ProjectBtn from "@/components/ProjectBtn";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { handleSubmit } from "@/db/action/creatProject";
+import getUserProjects from "@/db/getUserProjects";
+import { authOptions } from "@/lib/nextAuth";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { redirect, useRouter } from 'next/navigation';
-import { CustomSession } from '@/types';
-// import {prisma} from '@/lib/prisma';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-export default function MePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-
-  if (status === 'loading') return <div>جارٍ التحميل...</div>;
-  if (!session) redirect('/auth/signin');
-
-  const customSession = session as CustomSession;
-  console.log(session);
-  
-  // const handleAddProject = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const projectSlug = name.toLowerCase().replace(/\s+/g, '-');
-  //   const newProject = await prisma.project.create({
-  //     data: {
-  //       name,
-  //       description,
-  //       userId: customSession.user.id,
-  //     },
-  //   });
-  //   setName('');
-  //   setDescription('');
-  //   router.push(`/project/${projectSlug}`);
-  // };
-  
+const MePage = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/signin");
+  const projects = await getUserProjects(session.user.id);
   return (
-    <div className="container mx-auto p-4">
-      <h1>مرحبًا، {customSession.user.name}</h1>
-      {/* <form onSubmit={handleAddProject} className="space-y-4"> */}
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="اسم المشروع"
-          required
-        />
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="الوصف"
-        />
-        <Button type="submit">إضافة مشروع</Button>
-      {/* </form> */}
+    <div>
+      <div className="flex flex-col gap-4 container m-auto">
+        <h2>Me Page</h2>
+        <div className="w-1/2 self-center ">
+          <form action={handleSubmit}>
+            <div className="flex flex-col gap-4">
+              <Label>Name</Label>
+              <Input type="text" name="project-name" />
+              <Label>discrition</Label>
+              <Textarea name="descripion"></Textarea>
+              <Button>Add</Button>
+            </div>
+          </form>
+        </div>
+        <div className="grid grid-cols-2 gap-4 container m-auto">
+          {projects.map((project) => (
+            <ProjectBtn
+              key={project.id}
+              project={{ ...project, link: `/project/${project.id}` }}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
-}
+};
+export default MePage;
