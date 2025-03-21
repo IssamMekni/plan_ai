@@ -1,4 +1,3 @@
-// app/project/[id]/edit/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,8 +27,9 @@ interface Project {
 
 export default function ProjectEditPage() {
   const params = useParams<{
-    slug: string; id: string 
-}>();
+    slug: string;
+    id: string;
+  }>();
   const { toast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +44,7 @@ export default function ProjectEditPage() {
         if (!response.ok) throw new Error("Failed to fetch project");
         const data: Project = await response.json();
         setProject(data);
-        
+
         if (data.diagrams && data.diagrams.length > 0) {
           setActiveDiagram(data.diagrams[0]);
           setEditorContent(data.diagrams[0].code);
@@ -64,7 +64,8 @@ export default function ProjectEditPage() {
     fetchProject();
   }, [params.slug, toast]);
 
-  const handleSelectDiagram = (diagram: Diagram) => {
+  const handleSelectDiagram = async (diagram: Diagram) => {
+    await handleSaveDiagram()
     setActiveDiagram(diagram);
     setEditorContent(diagram.code);
   };
@@ -75,6 +76,7 @@ export default function ProjectEditPage() {
 
   const handleSaveDiagram = async () => {
     if (!activeDiagram) return;
+    console.log("from save" );
     
     setIsProcessing(true);
     try {
@@ -83,25 +85,33 @@ export default function ProjectEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: editorContent }),
       });
-      
+
       if (!response.ok) throw new Error("Failed to save diagram");
-      
-      const imageResponse = await fetch(`/api/diagrams/${activeDiagram.id}/generate`, {
-        method: "POST",
-      });
-      
-      if (!imageResponse.ok) throw new Error("Failed to generate diagram image");
-      
+
+      // const imageResponse = await fetch(
+      //   `/api/diagrams/${activeDiagram.id}/generate`,
+      //   {
+      //     method: "POST",
+      //   }
+      // );
+
+      // if (!imageResponse.ok)
+      //   throw new Error("Failed to generate diagram image");
+
       const updatedDiagram: Diagram = await response.json();
-      
+
       setActiveDiagram(updatedDiagram);
-      setProject(prev => prev ? {
-        ...prev,
-        diagrams: prev.diagrams.map(d => 
-          d.id === updatedDiagram.id ? updatedDiagram : d
-        )
-      } : null);
-      
+      setProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              diagrams: prev.diagrams.map((d) =>
+                d.id === updatedDiagram.id ? updatedDiagram : d
+              ),
+            }
+          : null
+      );
+
       toast({
         title: "Success",
         description: "Diagram saved successfully",
@@ -117,31 +127,35 @@ export default function ProjectEditPage() {
       setIsProcessing(false);
     }
   };
-
+// 33333333
   const handleCreateDiagram = async (name: string) => {
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/projects/${project?.id}/diagrams`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          name, 
-          code: "@startuml\n\n@enduml" 
+        body: JSON.stringify({
+          name,
+          code: "@startuml\n\n@enduml",
         }),
       });
-      
+
       if (!response.ok) throw new Error("Failed to create diagram");
-      
+
       const newDiagram: Diagram = await response.json();
-      
-      setProject(prev => prev ? {
-        ...prev,
-        diagrams: [...prev.diagrams, newDiagram]
-      } : null);
-      
+
+      setProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              diagrams: [...prev.diagrams, newDiagram],
+            }
+          : null
+      );
+
       setActiveDiagram(newDiagram);
       setEditorContent(newDiagram.code);
-      
+
       toast({
         title: "Success",
         description: "New diagram created",
@@ -163,21 +177,26 @@ export default function ProjectEditPage() {
       return;
     }
     console.log(diagramId);
-    
+
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/diagrams/${diagramId}`, {
         method: "DELETE",
       });
-      
+
       if (!response.ok) throw new Error("Failed to delete diagram");
-      
-      const updatedDiagrams = project?.diagrams.filter(d => d.id !== diagramId) || [];
-      setProject(prev => prev ? {
-        ...prev,
-        diagrams: updatedDiagrams
-      } : null);
-      
+
+      const updatedDiagrams =
+        project?.diagrams.filter((d) => d.id !== diagramId) || [];
+      setProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              diagrams: updatedDiagrams,
+            }
+          : null
+      );
+
       if (activeDiagram && activeDiagram.id === diagramId) {
         if (updatedDiagrams.length > 0) {
           setActiveDiagram(updatedDiagrams[0]);
@@ -187,7 +206,7 @@ export default function ProjectEditPage() {
           setEditorContent("");
         }
       }
-      
+
       toast({
         title: "Success",
         description: "Diagram deleted",
@@ -206,24 +225,25 @@ export default function ProjectEditPage() {
 
   const handleAiSuggestion = async (prompt: string) => {
     if (!activeDiagram) return;
-    
+
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/ai/plantUmlAssistant`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           prompt,
           currentCode: editorContent,
-          diagramType: activeDiagram.name
+          diagramType: activeDiagram.name,
         }),
       });
-      
+
       if (!response.ok) throw new Error("Failed to get AI suggestion");
-      
-      const { suggestedCode }: { suggestedCode: string } = await response.json();
+
+      const { suggestedCode }: { suggestedCode: string } =
+        await response.json();
       setEditorContent(suggestedCode);
-      
+
       toast({
         title: "Success",
         description: "AI suggestion applied",
@@ -258,12 +278,12 @@ export default function ProjectEditPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className=" mx-auto px-4 py-4">
       <ProjectHeader project={project} />
-      
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+
+      <div className="">
         <div className="md:col-span-1">
-          <DiagramList 
+          <DiagramList
             diagrams={project.diagrams}
             activeDiagram={activeDiagram}
             onSelectDiagram={handleSelectDiagram}
@@ -272,7 +292,7 @@ export default function ProjectEditPage() {
             isProcessing={isProcessing}
           />
         </div>
-        
+
         <div className="md:col-span-3">
           {activeDiagram ? (
             <Tabs defaultValue="editor" className="w-full">
@@ -280,19 +300,19 @@ export default function ProjectEditPage() {
                 <TabsTrigger value="editor">PlantUML Editor</TabsTrigger>
                 <TabsTrigger value="ai">AI Assistant</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="editor" className="mt-0">
                 <DiagramEditor
                   diagram={activeDiagram}
-                  code={editorContent}
                   onCodeChange={handleCodeChange}
                   onSave={handleSaveDiagram}
                   isProcessing={isProcessing}
+                  code={activeDiagram.code}
                 />
               </TabsContent>
-              
+
               <TabsContent value="ai" className="mt-0">
-                <AiAssistant 
+                <AiAssistant
                   onSuggestion={handleAiSuggestion}
                   diagramName={activeDiagram.name}
                   isProcessing={isProcessing}

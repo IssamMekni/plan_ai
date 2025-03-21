@@ -1,8 +1,11 @@
-// app/project/[id]/edit/components/DiagramEditor.tsx
-import { useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Save, RefreshCw } from "lucide-react";
+import Editor from "@monaco-editor/react";
+import { encode } from "plantuml-encoder";
+
 // import Image from "next/image";
 
 interface Diagram {
@@ -21,15 +24,24 @@ interface DiagramEditorProps {
   isProcessing: boolean;
 }
 
-export default function DiagramEditor({ 
-  diagram, 
-  code, 
-  onCodeChange, 
+export default function DiagramEditor({
+  diagram,
+  onCodeChange,
   onSave,
-  isProcessing
+  isProcessing,
 }: DiagramEditorProps) {
   const [viewMode, setViewMode] = useState<"split" | "code">("split");
+  const [code, setCode] = useState(diagram.code);
+  const diagramUrl = `http://www.plantuml.com/plantuml/png/${encode(code)}`;
 
+  useEffect(() => {
+    setCode(diagram.code);
+  }, [diagram]);
+  const handleChange = (value: string | undefined) => {
+    const newCode = value || "";
+    setCode(newCode);
+    onCodeChange(newCode);
+  };
   return (
     <Card className="h-full">
       <div className="flex items-center justify-between p-4 border-b">
@@ -39,19 +51,16 @@ export default function DiagramEditor({
             Last updated: {new Date(diagram.updatedAt).toLocaleString()}
           </p>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setViewMode(viewMode === "split" ? "code" : "split")}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewMode((prev) => (prev === "split" ? "code" : "split"))}
           >
             {viewMode === "split" ? "Code Only" : "Split View"}
           </Button>
-          <Button 
-            onClick={onSave} 
-            disabled={isProcessing}
-          >
+          <Button onClick={onSave} disabled={isProcessing}>
             {isProcessing ? (
               <>
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -66,26 +75,24 @@ export default function DiagramEditor({
           </Button>
         </div>
       </div>
-      
+
       <div className={`grid ${viewMode === "split" ? "grid-cols-2" : "grid-cols-1"} gap-0 h-[600px]`}>
         <div className="border-r">
-          <textarea
+          <Editor
             value={code}
-            onChange={(e) => onCodeChange(e.target.value)}
-            className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none"
-            placeholder="Enter your PlantUML code here..."
-            disabled={isProcessing}
+            className="w-full h-full"
+            defaultLanguage="plaintext"
+            onChange={handleChange}
+            options={{ minimap: { enabled: false }, wordWrap: "on" }}
           />
         </div>
-        
+
         {viewMode === "split" && (
           <div className="p-4 overflow-auto">
             <div className="flex items-center justify-center h-full border rounded-md overflow-hidden">
               <img
-                src={diagram.imageUrl}
+                src={diagramUrl}
                 alt={diagram.name}
-                width={600}
-                height={400}
                 className="max-w-full max-h-full object-contain"
               />
             </div>
