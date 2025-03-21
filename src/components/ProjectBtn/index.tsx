@@ -43,7 +43,7 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
             className="object-cover w-full h-full"
           />
           <div className="">
-            {project.diagrams&&<DropdownMenu>
+            {project.diagrams.length>0&&(<DropdownMenu>
               <DropdownMenuTrigger className="absolute bottom-2 right-2 bg-primary/70 text-white px-3 py-1 flex items-center gap-2 rounded-lg text-lg font-semibold">
                 {project.diagramsCount} <Workflow size={20} />
               </DropdownMenuTrigger>
@@ -54,7 +54,7 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>}
+            </DropdownMenu>)}
           </div>
         </div>
       </div>

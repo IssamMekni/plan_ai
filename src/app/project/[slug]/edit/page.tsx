@@ -1,109 +1,311 @@
-'use client';
+// app/project/[id]/edit/page.tsx
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { CustomSession } from '@/types';
-import ProjectDetails from '../_components/ProjectDetails';
-import DiagramEditor from '../_components/DiagramEditor';
-import DiagramPagination from '../_components/DiagramPagination';
-// import AIAssistant from '../_components/AIAssistant';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import ProjectHeader from "./components/ProjectHeader";
+import DiagramList from "./components/DiagramList";
+import DiagramEditor from "./components/DiagramEditor";
+import AiAssistant from "./components/AiAssistant";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
+interface Diagram {
+  id: string;
+  name: string;
+  code: string;
+  imageUrl: string;
+  updatedAt: string;
+}
 
 interface Project {
   id: string;
   name: string;
-  description?: string | null;
-  imageUrl: string;
-  isPublic: boolean;
-  user: { name: string; id: string };
-  diagrams: { id: string; name: string; code: string }[];
-  createdAt: string;
+  description?: string;
+  diagrams: Diagram[];
 }
 
-export default function ProjectPage() {
-  const router = useRouter();
-  const params = useParams();
-  const { slug } = params;
-//   const { data: session, status } = useSession();
+export default function ProjectEditPage() {
+  const params = useParams<{
+    slug: string; id: string 
+}>();
+  const { toast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
-  const [currentDiagram, setCurrentDiagram] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activeDiagram, setActiveDiagram] = useState<Diagram | null>(null);
+  const [editorContent, setEditorContent] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchProject = async () => {
-      const response = await fetch(`/api/projects/${slug}`);
-      const data = await response.json();
-      if (response.ok) {
-        setProject({
-          ...data,
-          createdAt: new Date(data.createdAt).toISOString(),
-          diagrams: data.diagrams.map((d: any) => ({
-            ...d,
-            code: d.code || '',
-          })),
+      try {
+        const response = await fetch(`/api/projects/${params.slug}`);
+        if (!response.ok) throw new Error("Failed to fetch project");
+        const data: Project = await response.json();
+        setProject(data);
+        
+        if (data.diagrams && data.diagrams.length > 0) {
+          setActiveDiagram(data.diagrams[0]);
+          setEditorContent(data.diagrams[0].code);
+        }
+      } catch (error) {
+        console.error("Error fetching project:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load project data",
+          variant: "destructive",
         });
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchProject();
-  }, [slug]);
+  }, [params.slug, toast]);
 
-  if (status === 'loading') return <div>جارٍ التحميل...</div>;
-  if (!project) return <div>المشروع غير موجود</div>;
-
-  const customSession = session as CustomSession | null;
-  const userId = customSession?.user?.id;
-
-  const handleCopyProject = async () => {
-    if (!userId) {
-      router.push('/auth/signin');
-      return;
-    }
-    const response = await fetch('/api/projects/copy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId: project.id, userId }),
-    });
-    if (response.ok) router.push('/me');
+  const handleSelectDiagram = (diagram: Diagram) => {
+    setActiveDiagram(diagram);
+    setEditorContent(diagram.code);
   };
 
+  const handleCodeChange = (newCode: string) => {
+    setEditorContent(newCode);
+  };
+
+  const handleSaveDiagram = async () => {
+    if (!activeDiagram) return;
+    
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`/api/diagrams/${activeDiagram.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: editorContent }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to save diagram");
+      
+      const imageResponse = await fetch(`/api/diagrams/${activeDiagram.id}/generate`, {
+        method: "POST",
+      });
+      
+      if (!imageResponse.ok) throw new Error("Failed to generate diagram image");
+      
+      const updatedDiagram: Diagram = await response.json();
+      
+      setActiveDiagram(updatedDiagram);
+      setProject(prev => prev ? {
+        ...prev,
+        diagrams: prev.diagrams.map(d => 
+          d.id === updatedDiagram.id ? updatedDiagram : d
+        )
+      } : null);
+      
+      toast({
+        title: "Success",
+        description: "Diagram saved successfully",
+      });
+    } catch (error) {
+      console.error("Error saving diagram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save diagram",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCreateDiagram = async (name: string) => {
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`/api/projects/${project?.id}/diagrams`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name, 
+          code: "@startuml\n\n@enduml" 
+        }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to create diagram");
+      
+      const newDiagram: Diagram = await response.json();
+      
+      setProject(prev => prev ? {
+        ...prev,
+        diagrams: [...prev.diagrams, newDiagram]
+      } : null);
+      
+      setActiveDiagram(newDiagram);
+      setEditorContent(newDiagram.code);
+      
+      toast({
+        title: "Success",
+        description: "New diagram created",
+      });
+    } catch (error) {
+      console.error("Error creating diagram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create new diagram",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDeleteDiagram = async (diagramId: string) => {
+    if (!window.confirm("Are you sure you want to delete this diagram?")) {
+      return;
+    }
+    console.log(diagramId);
+    
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`/api/diagrams/${diagramId}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) throw new Error("Failed to delete diagram");
+      
+      const updatedDiagrams = project?.diagrams.filter(d => d.id !== diagramId) || [];
+      setProject(prev => prev ? {
+        ...prev,
+        diagrams: updatedDiagrams
+      } : null);
+      
+      if (activeDiagram && activeDiagram.id === diagramId) {
+        if (updatedDiagrams.length > 0) {
+          setActiveDiagram(updatedDiagrams[0]);
+          setEditorContent(updatedDiagrams[0].code);
+        } else {
+          setActiveDiagram(null);
+          setEditorContent("");
+        }
+      }
+      
+      toast({
+        title: "Success",
+        description: "Diagram deleted",
+      });
+    } catch (error) {
+      console.error("Error deleting diagram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete diagram",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleAiSuggestion = async (prompt: string) => {
+    if (!activeDiagram) return;
+    
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`/api/ai/plantUmlAssistant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          prompt,
+          currentCode: editorContent,
+          diagramType: activeDiagram.name
+        }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to get AI suggestion");
+      
+      const { suggestedCode }: { suggestedCode: string } = await response.json();
+      setEditorContent(suggestedCode);
+      
+      toast({
+        title: "Success",
+        description: "AI suggestion applied",
+      });
+    } catch (error) {
+      console.error("Error getting AI suggestion:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get AI suggestion",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading project...</span>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold">Project not found</h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <ProjectDetails project={project} onCopy={handleCopyProject} />
-      {project.diagrams.length > 0 ? (
-        <>
-          <DiagramEditor
-            diagram={project.diagrams[currentDiagram]}
-            onCodeChange={(code) => {
-              const updatedProject = { ...project };
-              updatedProject.diagrams[currentDiagram].code = code;
-              setProject(updatedProject);
-            }}
-            onSave={async (code) => {
-              await fetch('/api/diagrams', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  id: project.diagrams[currentDiagram].id,
-                  code,
-                }),
-              });
-            }}
+    <div className="container mx-auto px-4 py-4">
+      <ProjectHeader project={project} />
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <div className="md:col-span-1">
+          <DiagramList 
+            diagrams={project.diagrams}
+            activeDiagram={activeDiagram}
+            onSelectDiagram={handleSelectDiagram}
+            onCreateDiagram={handleCreateDiagram}
+            onDeleteDiagram={handleDeleteDiagram}
+            isProcessing={isProcessing}
           />
-          <DiagramPagination
-            currentDiagram={currentDiagram}
-            totalDiagrams={project.diagrams.length}
-            onPageChange={setCurrentDiagram}
-          />
-          {/* <AIAssistant
-            onGenerate={(code) => {
-              const updatedProject = { ...project };
-              updatedProject.diagrams[currentDiagram].code = code;
-              setProject(updatedProject);
-            }}
-          /> */}
-        </>
-      ) : (
-        <div>لا توجد رسوم تخطيطية بعد. استخدم مساعد AI لإنشاء واحد.</div>
-      )}
+        </div>
+        
+        <div className="md:col-span-3">
+          {activeDiagram ? (
+            <Tabs defaultValue="editor" className="w-full">
+              <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="editor">PlantUML Editor</TabsTrigger>
+                <TabsTrigger value="ai">AI Assistant</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="editor" className="mt-0">
+                <DiagramEditor
+                  diagram={activeDiagram}
+                  code={editorContent}
+                  onCodeChange={handleCodeChange}
+                  onSave={handleSaveDiagram}
+                  isProcessing={isProcessing}
+                />
+              </TabsContent>
+              
+              <TabsContent value="ai" className="mt-0">
+                <AiAssistant 
+                  onSuggestion={handleAiSuggestion}
+                  diagramName={activeDiagram.name}
+                  isProcessing={isProcessing}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <div className="border rounded-md p-8 text-center text-muted-foreground">
+              <p>No diagram selected. Create or select a diagram to edit.</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
