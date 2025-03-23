@@ -282,7 +282,7 @@ export default function ProjectEditPage() {
       <ProjectHeader project={project} />
 
       <div className="">
-        <div className="md:col-span-1">
+        <div className="">
           <DiagramList
             diagrams={project.diagrams}
             activeDiagram={activeDiagram}

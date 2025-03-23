@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Save, RefreshCw } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { encode } from "plantuml-encoder";
-
-// import Image from "next/image";
+import * as monaco from "monaco-editor";
 
 interface Diagram {
   id: string;
@@ -18,11 +17,12 @@ interface Diagram {
 
 interface DiagramEditorProps {
   diagram: Diagram;
-  code: string;
   onCodeChange: (newCode: string) => void;
   onSave: () => void;
   isProcessing: boolean;
 }
+
+
 
 export default function DiagramEditor({
   diagram,
@@ -30,36 +30,57 @@ export default function DiagramEditor({
   onSave,
   isProcessing,
 }: DiagramEditorProps) {
-  const [viewMode, setViewMode] = useState<"split" | "code">("split");
+  const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
   const [code, setCode] = useState(diagram.code);
   const diagramUrl = `http://www.plantuml.com/plantuml/png/${encode(code)}`;
 
   useEffect(() => {
     setCode(diagram.code);
   }, [diagram]);
+
   const handleChange = (value: string | undefined) => {
     const newCode = value || "";
     setCode(newCode);
     onCodeChange(newCode);
   };
+
+
   return (
     <Card className="h-full">
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 border-b gap-4">
         <div className="flex-1">
           <h2 className="text-lg font-medium">{diagram.name}</h2>
           <p className="text-sm text-muted-foreground">
             Last updated: {new Date(diagram.updatedAt).toLocaleString()}
           </p>
         </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode((prev) => (prev === "split" ? "code" : "split"))}
-          >
-            {viewMode === "split" ? "Code Only" : "Split View"}
-          </Button>
+        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+          <div className="flex items-center rounded-md border bg-background p-1 text-muted-foreground w-fit">
+            <button
+              onClick={() => setViewMode("split")}
+              className={`hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ${
+                viewMode === "split" ? "bg-primary text-primary-foreground" : "hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              Split View
+            </button>
+            <button
+              onClick={() => setViewMode("code")}
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ${
+                viewMode === "code" ? "bg-primary text-primary-foreground" : "hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              Code Only
+            </button>
+            <button
+              onClick={() => setViewMode("preview")}
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ${
+                viewMode === "preview" ? "bg-primary text-primary-foreground" : "hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              Preview Only
+            </button>
+          </div>
           <Button onClick={onSave} disabled={isProcessing}>
             {isProcessing ? (
               <>
@@ -75,19 +96,20 @@ export default function DiagramEditor({
           </Button>
         </div>
       </div>
-
-      <div className={`grid ${viewMode === "split" ? "grid-cols-2" : "grid-cols-1"} gap-0 h-[600px]`}>
-        <div className="border-r">
-          <Editor
-            value={code}
-            className="w-full h-full"
-            defaultLanguage="plaintext"
-            onChange={handleChange}
-            options={{ minimap: { enabled: false }, wordWrap: "on" }}
-          />
-        </div>
-
-        {viewMode === "split" && (
+      <div className={`grid ${viewMode === "split" ? "md:grid-cols-2" : "grid-cols-1"} gap-0 h-[600px]`}>
+        {(viewMode === "split" || viewMode === "code") && (
+          <div className="border-r">
+            <Editor
+              value={code}
+              className="w-full h-full"
+              defaultLanguage="plaintext"
+              onChange={handleChange}
+              theme="vs-dark"
+              options={{ minimap: { enabled: false }, wordWrap: "on" }}
+            />
+          </div>
+        )}
+        {(viewMode === "split" || viewMode === "preview") && (
           <div className="p-4 overflow-auto">
             <div className="flex items-center justify-center h-full border rounded-md overflow-hidden">
               <img
