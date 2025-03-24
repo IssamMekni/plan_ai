@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Save, RefreshCw } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { encode } from "plantuml-encoder";
-import * as monaco from "monaco-editor";
-
+import { env } from "process";
 interface Diagram {
   id: string;
   name: string;
@@ -32,7 +31,7 @@ export default function DiagramEditor({
 }: DiagramEditorProps) {
   const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
   const [code, setCode] = useState(diagram.code);
-  const diagramUrl = `http://www.plantuml.com/plantuml/png/${encode(code)}`;
+  const diagramUrl = `${"http://localhost:3030"}/svg/${encode(code)}`;
 
   useEffect(() => {
     setCode(diagram.code);

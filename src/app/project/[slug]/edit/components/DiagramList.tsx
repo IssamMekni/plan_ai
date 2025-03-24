@@ -145,6 +145,7 @@ export default function DiagramList({
           onClick={() => setIsOpen(!isOpen)}
         >
           <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-2 px-3 py-2 sm:min-w-96">
+            diagrams({diagrams.length}):
             <CardTitle className="text-sm md:text-md font-medium ">
               {activeDiagram?.name}
             </CardTitle>
