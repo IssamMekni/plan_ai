@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import ProjectHeader from "./components/ProjectHeader";
 import DiagramList from "./components/DiagramList";
-import DiagramEditor from "./components/DiagramEditor";
+import DiagramEditor from "./components/DiagramEditor/index";
 import AiAssistant from "./components/AiAssistant";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -65,7 +64,7 @@ export default function ProjectEditPage() {
   }, [params.slug, toast]);
 
   const handleSelectDiagram = async (diagram: Diagram) => {
-    await handleSaveDiagram()
+    await handleSaveDiagram();
     setActiveDiagram(diagram);
     setEditorContent(diagram.code);
   };
@@ -76,8 +75,8 @@ export default function ProjectEditPage() {
 
   const handleSaveDiagram = async () => {
     if (!activeDiagram) return;
-    console.log("from save" );
-    
+    console.log("from save");
+
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/diagrams/${activeDiagram.id}`, {
@@ -127,7 +126,7 @@ export default function ProjectEditPage() {
       setIsProcessing(false);
     }
   };
-// 33333333
+  // 33333333
   const handleCreateDiagram = async (name: string) => {
     setIsProcessing(true);
     try {
@@ -295,30 +294,19 @@ export default function ProjectEditPage() {
 
         <div className="md:col-span-3">
           {activeDiagram ? (
-            <Tabs defaultValue="editor" className="w-full">
-              <TabsList className="grid grid-cols-2">
-                <TabsTrigger value="editor">PlantUML Editor</TabsTrigger>
-                <TabsTrigger value="ai">AI Assistant</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="editor" className="mt-0">
-                <DiagramEditor
-                  diagram={activeDiagram}
-                  onCodeChange={handleCodeChange}
-                  onSave={handleSaveDiagram}
-                  isProcessing={isProcessing}
-                  code={activeDiagram.code}
-                />
-              </TabsContent>
-
-              <TabsContent value="ai" className="mt-0">
-                <AiAssistant
-                  onSuggestion={handleAiSuggestion}
-                  diagramName={activeDiagram.name}
-                  isProcessing={isProcessing}
-                />
-              </TabsContent>
-            </Tabs>
+            <DiagramEditor
+              diagram={activeDiagram}
+              onCodeChange={handleCodeChange}
+              onSave={handleSaveDiagram}
+              isProcessing={isProcessing}
+              // code={activeDiagram.code}
+            >
+              <AiAssistant
+                onSuggestion={handleAiSuggestion}
+                diagramName={activeDiagram.name}
+                isProcessing={isProcessing}
+              />
+            </DiagramEditor>
           ) : (
             <div className="border rounded-md p-8 text-center text-muted-foreground">
               <p>No diagram selected. Create or select a diagram to edit.</p>

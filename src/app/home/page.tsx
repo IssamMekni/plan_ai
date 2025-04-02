@@ -1,4 +1,4 @@
-import ProjectBtn from "@/components/ProjectBtn";
+import ProjectBtn from "@/components/ProjectCart";
 import exempl from "@/tmp/exemplmyproject.json";
 import exempl2 from "@/tmp/exemplComunityProject.json";
 import MoreButton from "@/components/Morebtn";
