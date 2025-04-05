@@ -27,11 +27,11 @@ interface ProjectBtnProps {
 
 const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
   const formatDate = (dateString) => {
-    return format(new Date(dateString), "MMM d, yyyy");
+    return format(Date(dateString), "MMM d, yyyy");
   };
 
   const formatTime = (dateString) => {
-    return format(new Date(dateString), "h:mm a");
+    return format(Date(dateString), "h:mm a");
   };
   return (
     <div className="border p-4 rounded-lg shadow-lg flex flex-col gap-4 bg-primary-foreground hover:shadow-xl transition-shadow duration-300">

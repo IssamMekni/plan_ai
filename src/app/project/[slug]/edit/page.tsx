@@ -35,6 +35,7 @@ export default function ProjectEditPage() {
   const [activeDiagram, setActiveDiagram] = useState<Diagram | null>(null);
   const [editorContent, setEditorContent] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [code, setCode] = useState("");
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -75,7 +76,6 @@ export default function ProjectEditPage() {
 
   const handleSaveDiagram = async () => {
     if (!activeDiagram) return;
-    console.log("from save");
 
     setIsProcessing(true);
     try {
@@ -227,7 +227,7 @@ export default function ProjectEditPage() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/ai/plantUmlAssistant`, {
+      const response = await fetch(`/api/ai`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -241,8 +241,9 @@ export default function ProjectEditPage() {
 
       const { suggestedCode }: { suggestedCode: string } =
         await response.json();
-      setEditorContent(suggestedCode);
-
+      setCode(suggestedCode);
+      console.log(editorContent);
+      // document.querySelector<HTMLButtonElement>("#editor")?.change();
       toast({
         title: "Success",
         description: "AI suggestion applied",
@@ -299,12 +300,14 @@ export default function ProjectEditPage() {
               onCodeChange={handleCodeChange}
               onSave={handleSaveDiagram}
               isProcessing={isProcessing}
-              // code={activeDiagram.code}
+              code={code}
+              setCode={setCode}
             >
               <AiAssistant
-                onSuggestion={handleAiSuggestion}
+                onSuggestionApplied={setEditorContent}
                 diagramName={activeDiagram.name}
-                isProcessing={isProcessing}
+                currentDiagramCode={editorContent}
+                submitPrompt={handleAiSuggestion}
               />
             </DiagramEditor>
           ) : (
