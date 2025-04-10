@@ -1,4 +1,5 @@
 // src/app/api/ai/plantUmlAssistant/route.ts
+import removePlantUMLBlock from '@/lib/removePlantUMLBlock';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 const googleAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
-    console.log("#####################################form ai route");
     
   try {
     // Parse the request body
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the Gemini model (using pro vision for better context understanding)
-    const model = googleAI.getGenerativeModel({ model: 'gemini-2.0-pro' });
+    const model = googleAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Construct a detailed prompt to give context for the AI
     const systemPrompt = `You are an expert PlantUML developer. Given the following ${diagramType} diagram code and a user request, 
@@ -41,8 +41,9 @@ export async function POST(request: NextRequest) {
     // Generate the response from Gemini
     const result = await model.generateContent(systemPrompt);
     const response = result.response;
-    const suggestedCode = response.text().trim();
-    console.log(suggestedCode);
+    const suggestedCode = removePlantUMLBlock(response.text().trim());
+
+    console.log(response.text().trim());
     
 
     // Return the generated code

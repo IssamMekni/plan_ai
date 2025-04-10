@@ -28,8 +28,7 @@ export async function DELETE(
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
     try {
-        const body = await req.json();
-
+        const body = await req.json();        
         const diagram = await prisma.diagram.update({
             where: { id: await params.id },
             data: {

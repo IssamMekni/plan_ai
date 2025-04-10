@@ -21,7 +21,7 @@ export function CodeEditor({ code, onChange }: CodeEditorProps) {
   };
 
   return (
-    <div className="h-screen max-h-screen">
+    <div className="h-full max-h-screen">
       <Editor
         value={code}
         className="w-full h-full"

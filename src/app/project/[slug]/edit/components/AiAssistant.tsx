@@ -55,7 +55,7 @@ export default function AiAssistant({
   }
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 ">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl font-semibold">
           <Sparkles className="text-blue-500" />
