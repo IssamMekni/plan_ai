@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  url = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Admin {
@@ -41,7 +41,7 @@ model Conversation {
 model Message {
   id             String       @id @default(uuid())
   conversationId String
-  sender         String // "user" or "ai"
+  sender         String       // "user" or "ai"
   content        String
   createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id])
@@ -74,30 +74,35 @@ model Session {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  projects      Project[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  Conversation  Conversation[]
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  projects        Project[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  conversations   Conversation[]
+  projectComments ProjectComment[]
+  projectLikes    ProjectLike[]
+  commentLikes    CommentLike[]
 }
 
 model Project {
-  id          String    @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
-  description String?   @default(" ")
-  imageUrl    String    @default("https://placehold.co/600x400")
-  isPublic    Boolean   @default(false)
+  description String?          @default(" ")
+  imageUrl    String           @default("https://placehold.co/600x400")
+  isPublic    Boolean          @default(false)
   userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   diagrams    Diagram[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  comments    ProjectComment[]
+  likes       ProjectLike[]
 }
 
 model Diagram {
@@ -109,4 +114,38 @@ model Diagram {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   imageUrl  String   @default("https://placehold.co/600x400")
+}
+
+model ProjectComment {
+  id        String        @id @default(cuid())
+  content   String        @db.Text
+  projectId String
+  userId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
+}
+
+model ProjectLike {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model CommentLike {
+  id        String         @id @default(cuid())
+  commentId String
+  userId    String
+  createdAt DateTime       @default(now())
+  comment   ProjectComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
 }
