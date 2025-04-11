@@ -1,8 +1,20 @@
 version: '3.8'
 services:
+  web:
+    build:
+      context: .
+    container_name: plan_ai-web
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:password@127.0.0.1:5434/mydatabase
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
   db:
     image: postgres:15
     restart: always
+    container_name: plan_ai-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -11,4 +23,18 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
-
+  shadow_db:
+    image: postgres:15
+    restart: always
+    container_name: plan_ai-shadow_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shadowmydatabase
+    volumes:
+      - shadow_db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+volumes:
+  db_data:
+  shadow_db_data:

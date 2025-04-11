@@ -1,0 +1,87 @@
+{
+    "admins": [
+      {
+        "username": "admin1",
+        "email": "admin1@example.com",
+        "passwordHash": "hashedpassword123"
+      },
+      {
+        "username": "admin2",
+        "email": "admin2@example.com",
+        "passwordHash": "hashedpassword456"
+      }
+    ],
+    "users": [
+      {
+        "name": "أحمد",
+        "email": "ahmed@example.com",
+        "image": "https://example.com/image1.jpg"
+      },
+      {
+        "name": "سارة",
+        "email": "sara@example.com",
+        "image": "https://example.com/image2.jpg"
+      }
+    ],
+    "aiModels": [
+      {
+        "name": "Model A",
+        "description": "This is a sample AI model"
+      },
+      {
+        "name": "Model B",
+        "description": "Another AI model for testing"
+      }
+    ],
+    "conversations": [
+      {
+        "userId": "user-id-1",
+        "aiModelId": "ai-model-id-1",
+        "title": "AI Conversation 1"
+      },
+      {
+        "userId": "user-id-2",
+        "aiModelId": "ai-model-id-2",
+        "title": "AI Conversation 2"
+      }
+    ],
+    "messages": [
+      {
+        "conversationId": "conversation-id-1",
+        "sender": "user",
+        "content": "Hello, AI!"
+      },
+      {
+        "conversationId": "conversation-id-1",
+        "sender": "ai",
+        "content": "Hello, how can I assist you today?"
+      }
+    ],
+    "projects": [
+      {
+        "name": "Project 1",
+        "description": "First project description",
+        "isPublic": true,
+        "userId": "user-id-1"
+      },
+      {
+        "name": "Project 2",
+        "description": "Second project description",
+        "isPublic": false,
+        "userId": "user-id-2"
+      }
+    ],
+    "diagrams": [
+      {
+        "name": "Diagram 1",
+        "code": "diagram_code_1",
+        "projectId": "project-id-1"
+      },
+      {
+        "name": "Diagram 2",
+        "code": "diagram_code_2",
+        "projectId": "project-id-2"
+      }
+    ]
+  }
+  
