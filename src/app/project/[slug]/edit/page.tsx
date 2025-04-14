@@ -82,7 +82,7 @@ export default function ProjectEditPage() {
       const response = await fetch(`/api/diagrams/${activeDiagram.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: editorContent }),
+        body: JSON.stringify({ code: code }),
       });
 
       if (!response.ok) throw new Error("Failed to save diagram");
@@ -241,9 +241,9 @@ export default function ProjectEditPage() {
 
       const { suggestedCode }: { suggestedCode: string } =
         await response.json();
-      setCode(suggestedCode);
-      console.log(editorContent);
-      // document.querySelector<HTMLButtonElement>("#editor")?.change();
+        setCode(c => suggestedCode);
+        setEditorContent(c=>suggestedCode)
+        
       toast({
         title: "Success",
         description: "AI suggestion applied",

@@ -40,11 +40,12 @@ export default function DiagramEditor({
 }: DiagramEditorProps) {
   const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
   const [editorMode, setEditorMode] = useState<"editor" | "ai" | "both">("editor");
-  const diagramUrl = `http://localhost:3030/png/${encode(code)}`;
+  const diagramUrl = `http://localhost:3030/png/${code?encode(code):""}`;
+  // const diagramUrl = `http://localhost:3030/png}`;
   
   useEffect(() => {
     setCode(diagram.code);
-  }, [diagram, setCode]);
+  }, [diagram]);
 
   const handleChange = (value: string | undefined) => {
     const newCode = value || "";
@@ -109,7 +110,7 @@ export default function DiagramEditor({
                 <div className="flex-1 overflow-hidden">
                   {editorMode === "editor" && (
                     <div className="h-full">
-                      <CodeEditor code={code} onChange={handleChange} />
+                      <CodeEditor code={code} onChange={handleChange}  />
                     </div>
                   )}
                   
