@@ -38,14 +38,50 @@ export default function DiagramEditor({
   code,
   setCode,
 }: DiagramEditorProps) {
-  const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
-  const [editorMode, setEditorMode] = useState<"editor" | "ai" | "both">("editor");
-  const diagramUrl = `http://localhost:3030/png/${code?encode(code):""}`;
+  const [viewMode, setViewMode] = useState<"split" | "code" | "preview">(
+    "split"
+  );
+  const [editorMode, setEditorMode] = useState<"editor" | "ai" | "both">(
+    "editor"
+  );
+  const [diagramUrl, setDiagramUrl] = useState<string | null>(null);
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  // const diagramUrl = `http://localhost:3030/png/${code?encode(code):""}`;
   // const diagramUrl = `http://localhost:3030/png}`;
-  
+
   useEffect(() => {
     setCode(diagram.code);
   }, [diagram]);
+  const fetchImgDiagram = async (code: string) => {
+    try {
+      const response = await fetch(`/api/diagrams/image`, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: code,
+      });
+  
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setDiagramUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev); // clean up old blob URL
+        return url;
+      });
+      console.log(url);
+    } catch (err) {
+      console.error("Failed to fetch diagram:", err);
+    }
+  };
+  
+  useEffect(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+
+    const id = setTimeout(() => {
+      fetchImgDiagram(code);
+    }, 500); // debounce: 500ms after typing stops
+
+    setTimeoutId(id);
+    return () => clearTimeout(id); // clean on unmount
+  }, [code]);
 
   const handleChange = (value: string | undefined) => {
     const newCode = value || "";
@@ -63,7 +99,7 @@ export default function DiagramEditor({
         diagramName={diagram.name}
         updatedAt={diagram.updatedAt}
       />
-      
+
       {viewMode === "split" ? (
         <div className="h-[600px]">
           <ResizablePanelGroup direction="horizontal">
@@ -78,9 +114,11 @@ export default function DiagramEditor({
                         ? "border-b-2 border-primary text-primary"
                         : "text-gray-500 hover:text-gray-700"
                     }`}
-                    onClick={() => setEditorMode(prevMode => 
-                      prevMode === "ai" ? "both" : "editor"
-                    )}
+                    onClick={() =>
+                      setEditorMode((prevMode) =>
+                        prevMode === "ai" ? "both" : "editor"
+                      )
+                    }
                   >
                     PlantUML Editor
                   </button>
@@ -90,9 +128,11 @@ export default function DiagramEditor({
                         ? "border-b-2 border-primary text-primary"
                         : "text-gray-500 hover:text-gray-700"
                     }`}
-                    onClick={() => setEditorMode(prevMode => 
-                      prevMode === "editor" ? "both" : "ai"
-                    )}
+                    onClick={() =>
+                      setEditorMode((prevMode) =>
+                        prevMode === "editor" ? "both" : "ai"
+                      )
+                    }
                   >
                     AI Assistant
                   </button>
@@ -105,30 +145,32 @@ export default function DiagramEditor({
                     </button>
                   )}
                 </div>
-                
+
                 {/* Tab Content */}
                 <div className="flex-1 overflow-hidden">
                   {editorMode === "editor" && (
                     <div className="h-full">
-                      <CodeEditor code={code} onChange={handleChange}  />
+                      <CodeEditor code={code} onChange={handleChange} />
                     </div>
                   )}
-                  
+
                   {editorMode === "ai" && (
-                    <div className="h-full">
-                      {children}
-                    </div>
+                    <div className="h-full">{children}</div>
                   )}
-                  
+
                   {editorMode === "both" && (
                     <ResizablePanelGroup direction="vertical">
                       {/* Editor panel */}
-                      <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
+                      <ResizablePanel
+                        defaultSize={50}
+                        minSize={20}
+                        maxSize={80}
+                      >
                         <CodeEditor code={code} onChange={handleChange} />
                       </ResizablePanel>
-                      
+
                       <ResizableHandle />
-                      
+
                       {/* AI Assistant panel */}
                       <ResizablePanel defaultSize={50}>
                         {children}
@@ -138,12 +180,15 @@ export default function DiagramEditor({
                 </div>
               </div>
             </ResizablePanel>
-            
+
             <ResizableHandle />
-            
+
             {/* Right panel - Preview */}
             <ResizablePanel defaultSize={50}>
-              <DiagramPreview diagramUrl={diagramUrl} diagramName={diagram.name} />
+              <DiagramPreview
+                diagramUrl={diagramUrl}
+                diagramName={diagram.name}
+              />
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
@@ -160,9 +205,11 @@ export default function DiagramEditor({
                         ? "border-b-2 border-primary text-primary"
                         : "text-gray-500 hover:text-gray-700"
                     }`}
-                    onClick={() => setEditorMode(prevMode => 
-                      prevMode === "ai" ? "both" : "editor"
-                    )}
+                    onClick={() =>
+                      setEditorMode((prevMode) =>
+                        prevMode === "ai" ? "both" : "editor"
+                      )
+                    }
                   >
                     PlantUML Editor
                   </button>
@@ -172,9 +219,11 @@ export default function DiagramEditor({
                         ? "border-b-2 border-primary text-primary"
                         : "text-gray-500 hover:text-gray-700"
                     }`}
-                    onClick={() => setEditorMode(prevMode => 
-                      prevMode === "editor" ? "both" : "ai"
-                    )}
+                    onClick={() =>
+                      setEditorMode((prevMode) =>
+                        prevMode === "editor" ? "both" : "ai"
+                      )
+                    }
                   >
                     AI Assistant
                   </button>
@@ -187,7 +236,7 @@ export default function DiagramEditor({
                     </button>
                   )}
                 </div>
-                
+
                 {/* Tab Content for code-only view */}
                 <div className="flex-1 ">
                   {editorMode === "editor" && (
@@ -195,24 +244,26 @@ export default function DiagramEditor({
                       <CodeEditor code={code} onChange={handleChange} />
                     </div>
                   )}
-                  
+
                   {editorMode === "ai" && (
-                    <div className="h-full">
-                      {children}
-                    </div>
+                    <div className="h-full">{children}</div>
                   )}
-                  
+
                   {editorMode === "both" && (
                     <ResizablePanelGroup direction="vertical">
                       {/* Editor panel */}
-                      <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
+                      <ResizablePanel
+                        defaultSize={50}
+                        minSize={20}
+                        maxSize={80}
+                      >
                         <CodeEditor code={code} onChange={handleChange} />
                       </ResizablePanel>
-                      
+
                       <ResizableHandle />
-                      
+
                       {/* AI Assistant panel */}
-                      <ResizablePanel defaultSize={50} >
+                      <ResizablePanel defaultSize={50}>
                         {children}
                       </ResizablePanel>
                     </ResizablePanelGroup>
@@ -221,9 +272,12 @@ export default function DiagramEditor({
               </div>
             </div>
           )}
-          
+
           {viewMode === "preview" && (
-            <DiagramPreview diagramUrl={diagramUrl} diagramName={diagram.name} />
+            <DiagramPreview
+              diagramUrl={diagramUrl}
+              diagramName={diagram.name}
+            />
           )}
         </div>
       )}

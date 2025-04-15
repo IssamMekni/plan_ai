@@ -10,7 +10,6 @@ interface CreateDiagramBody {
 
 export async function POST(request: Request, { params }: { params: { slug: string } }) {
   try {
-    console.log(params.slug);
     
     const body: CreateDiagramBody = await request.json();
     
