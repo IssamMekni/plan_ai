@@ -1,16 +1,23 @@
 // src/app/api/ai/plantUmlAssistant/route.ts
 import removePlantUMLBlock from '@/lib/removePlantUMLBlock';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Initialize Google AI with your API key
-const googleAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
+import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatOllama } from "@langchain/ollama";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 export async function POST(request: NextRequest) {
-    
   try {
     // Parse the request body
-    const { prompt, currentCode, diagramType } = await request.json();
+    const { 
+      prompt, 
+      currentCode, 
+      diagramType, 
+      model = 'ollama:gemma3:1b',
+      ollamaBaseUrl = 'http://localhost:11434'  // Default Ollama server URL
+    } = await request.json();
 
     // Validate required inputs
     if (!prompt) {
@@ -20,38 +27,95 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the Gemini model (using pro vision for better context understanding)
-    const model = googleAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-    // Construct a detailed prompt to give context for the AI
-    const systemPrompt = `You are an expert PlantUML developer. Given the following ${diagramType} diagram code and a user request, 
-    provide an improved version of the PlantUML code.
+    console.log("Selected model:", model);
     
-    CURRENT PLANTUML CODE:
-    ${currentCode}
+    // Initialize the model based on user selection
+    let llm;
     
-    USER REQUEST:
-    ${prompt}
+    // Model selection logic
+    if (model && typeof model === 'string') {
+      if (model.startsWith('gpt')) {
+        llm = new ChatOpenAI({
+          modelName: model,
+          temperature: 0.2,
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+      } else if (model.startsWith('gemini')) {
+        console.log("Initializing Google Generative AI");
+        llm = new ChatGoogleGenerativeAI({
+          model: model,
+          apiKey: process.env.GEMINI_API_KEY || '',
+          temperature: 0.2,
+        });
+      } else if (model.startsWith('claude')) {
+        llm = new ChatAnthropic({
+          modelName: model,
+          apiKey: process.env.ANTHROPIC_API_KEY || '',
+          temperature: 0.2,
+        });
+      } else if (model.startsWith('ollama:')) {
+        // Extract the actual model name after "ollama:" prefix
+        const ollamaModel = model.replace('ollama:', '');
+        
+        llm = new ChatOllama({
+          model: ollamaModel,
+          baseUrl: ollamaBaseUrl,
+          temperature: 0.2,
+        });
+      } else {
+        // Default to OpenAI if model string doesn't match any known prefix
+        console.log("Using default OpenAI model");
+        llm = new ChatOpenAI({
+          modelName: 'gpt-3.5-turbo',
+          temperature: 0.2,
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+      }
+    } else {
+      // Fallback if model is undefined or not a string
+      console.log("Model parameter is invalid, using default");
+      llm = new ChatOpenAI({
+        modelName: 'gpt-3.5-turbo',
+        temperature: 0.2,
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    }
+
+    // Create a prompt template
+    const promptTemplate = PromptTemplate.fromTemplate(
+      `You are an expert PlantUML developer. Given the following {diagramType} diagram code and a user request, provide an improved version of the PlantUML code.
+
+CURRENT PLANTUML CODE:
+{currentCode}
+
+USER REQUEST:
+{prompt}
+
+Only respond with valid PlantUML code. Do not include explanations or markdown formatting. Make sure the code is syntactically correct and follows PlantUML best practices. Preserve any existing structure unless explicitly asked to change it. Add helpful comments in the code where appropriate.`
+    );
+
+    // Create a chain
+    const chain = promptTemplate
+      .pipe(llm)
+      .pipe(new StringOutputParser());
+
+    // Execute the chain
+    const suggestedCode = await chain.invoke({
+      prompt,
+      currentCode: currentCode || '',
+      diagramType: diagramType || 'sequence'
+    });
+
+    // Process the result to remove any markdown code blocks if present
+    const cleanedCode = removePlantUMLBlock(suggestedCode.trim());
     
-    Only respond with valid PlantUML code. Do not include explanations or markdown formatting.
-    Make sure the code is syntactically correct and follows PlantUML best practices.
-    Preserve any existing structure unless explicitly asked to change it.
-    Add helpful comments in the code where appropriate.`;
-
-    // Generate the response from Gemini
-    const result = await model.generateContent(systemPrompt);
-    const response = result.response;
-    const suggestedCode = removePlantUMLBlock(response.text().trim());
-
-    console.log(response.text().trim());
-    
-
     // Return the generated code
-    return NextResponse.json({ suggestedCode });
+    return NextResponse.json({ suggestedCode: cleanedCode });
+
   } catch (error) {
     console.error('Error in PlantUML AI Assistant:', error);
     return NextResponse.json(
-      { error: 'Failed to generate PlantUML suggestion' },
+      { error: 'Failed to generate PlantUML suggestion', details: error },
       { status: 500 }
     );
   }

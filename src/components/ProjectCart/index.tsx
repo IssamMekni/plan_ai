@@ -1,4 +1,4 @@
-// components/ProjectBtn.tsx
+// components/ProjectCart.tsx
 import { truncateText } from "@/lib/truncateText";
 import { ArrowRight, Workflow } from "lucide-react";
 import Link from "next/link";
@@ -21,11 +21,11 @@ interface Project {
   diagrams: { name: string }[];
 }
 
-interface ProjectBtnProps {
+interface ProjectCartProps {
   project: Project;
 }
 
-const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
+const ProjectCart: React.FC<ProjectCartProps> = ({ project }) => {
   const formatDate = (dateString) => {
     return format(Date(dateString), "MMM d, yyyy");
   };
@@ -81,4 +81,4 @@ const ProjectBtn: React.FC<ProjectBtnProps> = ({ project }) => {
   );
 };
 
-export default ProjectBtn;
+export default ProjectCart;
