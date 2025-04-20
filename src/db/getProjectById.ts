@@ -6,7 +6,8 @@ const getProject = async (idProject:string) => {
         },
         include:{
             diagrams:{
-        }
+        },
+
     }
 })
     return projects

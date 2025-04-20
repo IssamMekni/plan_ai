@@ -1,4 +1,4 @@
-import Image from "next/image";
+// src/app/project/[slug]/page.tsx
 import Link from "next/link";
 import getProject from "@/db/getProjectById";
 import { authOptions } from "@/lib/nextAuth";
@@ -39,8 +39,12 @@ import {
   Share2,
   Trash2,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 import { handleSubmit } from "@/db/action/updateProject";
+import LikeButton from "@/components/LikeProject";
+import ProjectComments from "@/components/ProjectComments";
+import { prisma } from "@/lib/prisma";
 
 // This is a Server Component
 export default async function ProjectPage({ params }) {
@@ -51,6 +55,72 @@ export default async function ProjectPage({ params }) {
   const { slug } = await params;
   const project: Project = await getProject(slug);
   const session = await getServerSession(authOptions);
+  
+  // Get the like count for the project
+  const likeCount = await prisma.projectLike.count({
+    where: {
+      projectId: project.id,
+    },
+  });
+  
+  // Check if current user has liked the project
+  let userHasLiked = false;
+  if (session?.user?.id) {
+    const userLike = await prisma.projectLike.findUnique({
+      where: {
+        userId_projectId: {
+          userId: session.user.id as string,
+          projectId: project.id,
+        },
+      },
+    });
+    userHasLiked = !!userLike;
+  }
+  
+  // Get comments for initial load
+  const comments = await prisma.projectComment.findMany({
+    where: {
+      projectId: project.id,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 5, // Initial load limited to 5 comments
+  });
+  
+  // Add like status to comments
+  let commentsWithLikeStatus = comments;
+  if (session?.user?.id) {
+    const userCommentLikes = await prisma.commentLike.findMany({
+      where: {
+        userId: session.user.id as string,
+        commentId: {
+          in: comments.map(comment => comment.id),
+        },
+      },
+    });
+    
+    const likedCommentIds = new Set(userCommentLikes.map(like => like.commentId));
+    
+    commentsWithLikeStatus = comments.map(comment => ({
+      ...comment,
+      isLiked: likedCommentIds.has(comment.id),
+    }));
+  }
 
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM d, yyyy");
@@ -158,13 +228,17 @@ export default async function ProjectPage({ params }) {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-4">
-                <img
-                  src={project.imageUrl}
-                  alt={project.name || "Project image"}
-                  width={600}
-                  height={400}
-                  className="rounded-md object-cover w-full h-48"
-                />
+                <div className="relative">
+                  <img
+                    src={project.imageUrl}
+                    alt={project.name || "Project image"}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-48"
+                  />
+                  {/* Add the like button to the top left of the image */}
+                  <LikeButton postId={project.id} initialLikes={likeCount} />
+                </div>
                 <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
@@ -268,6 +342,12 @@ export default async function ProjectPage({ params }) {
               )}
             </CardContent>
           </Card>
+          
+          {/* Comments Section */}
+          <ProjectComments 
+            projectId={project.id}
+            initialComments={commentsWithLikeStatus}
+          />
         </div>
       </div>
     </div>

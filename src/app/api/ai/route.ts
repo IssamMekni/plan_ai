@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       prompt, 
       currentCode, 
       diagramType, 
-      model = 'ollama:gemma3:1b',
+      model = 'gemini-2.0-flash',
       ollamaBaseUrl = 'http://localhost:11434'  // Default Ollama server URL
     } = await request.json();
 
@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
           apiKey: process.env.GEMINI_API_KEY || '',
           temperature: 0.2,
         });
+        // console.log("Google Generative AI initialized");
+        
       } else if (model.startsWith('claude')) {
         llm = new ChatAnthropic({
           modelName: model,
@@ -100,12 +102,14 @@ Only respond with valid PlantUML code. Do not include explanations or markdown f
       .pipe(new StringOutputParser());
 
     // Execute the chain
+    console.log(chain)
     const suggestedCode = await chain.invoke({
       prompt,
       currentCode: currentCode || '',
       diagramType: diagramType || 'sequence'
     });
-
+    console.log("Suggested Code:", suggestedCode);
+    
     // Process the result to remove any markdown code blocks if present
     const cleanedCode = removePlantUMLBlock(suggestedCode.trim());
     

@@ -10,8 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import LikeButton from "../LikeProject";
+import CommentCount from "../CommentCount";
 
 interface Project {
+  id: string;
   imageUrl: string;
   name: string;
   createdAt: string;
@@ -19,6 +22,8 @@ interface Project {
   description?: string;
   link: string;
   diagrams: { name: string }[];
+  likes: number;
+  commentCount:number;
 }
 
 interface ProjectCartProps {
@@ -27,22 +32,34 @@ interface ProjectCartProps {
 
 const ProjectCart: React.FC<ProjectCartProps> = ({ project }) => {
   const formatDate = (dateString) => {
-    return format(Date(dateString), "MMM d, yyyy");
+    return format(new Date(dateString), "MMM d, yyyy");
   };
-
+  
   const formatTime = (dateString) => {
-    return format(Date(dateString), "h:mm a");
+    return format(new Date(dateString), "h:mm a");
   };
+  
+  // Get the comment count from the project object
+  // const commentCount = project._count?.comments || 0;
+  
   return (
     <div className="border p-4 rounded-lg shadow-lg flex flex-col gap-4 bg-primary-foreground hover:shadow-xl transition-shadow duration-300">
       <h3 className="font-semibold text-xl text-white">{project.name}</h3>
-
       <p className="text-gray-500 text-sm">
-        {project.description ? <>{truncateText(project.description, 100)}</>:<br/>}
+        {project.description ? (
+          <>{truncateText(project.description, 100)}</>
+        ) : (
+          <br />
+        )}
       </p>
-
       <div className="flex flex-col gap-6">
         <div className="relative w-full h-40 rounded-lg shadow-md">
+          {/* Like Button */}
+          <LikeButton postId={project.id} initialLikes={project.likes} />
+          
+          {/* Comment Count */}
+          <CommentCount projectId={project.id} initialCount={project.commentCount} />
+          
           <img
             src={project.imageUrl}
             alt={project.name}

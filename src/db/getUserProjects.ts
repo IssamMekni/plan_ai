@@ -5,10 +5,23 @@ const getUserProjects = async (id:string) => {
             userId:id
         },
         include:{
-            diagrams:{}
+            diagrams:{
+
+            },
+            _count: {
+                select: {
+                  likes: true,
+                  comments: true,
+                },
+              },
     }
 
 })
-    return projects
+return projects.map(project => ({
+    ...project,
+    likes: project?._count.likes||0,
+    diagramsCount: project.diagrams.length,
+    commentCount:project?._count.comments||0
+  }));
 }
 export default getUserProjects;

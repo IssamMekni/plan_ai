@@ -12,12 +12,12 @@ export default async function Home():Promise<JSX.Element> {
     <div>
       <Navbar/>
       <br />
-      {session&&JSON.stringify(session)}
+      {/* {session&&JSON.stringify(session)} */}
       <br />
       <br />
       <br />
       <br />
-      {session&&JSON.stringify(projects)}
+      {/* {session&&JSON.stringify(projects)} */}
       landing page
     </div>
   );
