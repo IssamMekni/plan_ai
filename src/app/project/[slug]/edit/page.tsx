@@ -79,7 +79,7 @@ export default function ProjectEditPage() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/diagrams/${activeDiagram.id}`, {
+      const response = await fetch(`/api/projects/${project?.id}/diagrams/${activeDiagram.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code }),
@@ -126,7 +126,6 @@ export default function ProjectEditPage() {
       setIsProcessing(false);
     }
   };
-  // 33333333
   const handleCreateDiagram = async (name: string) => {
     setIsProcessing(true);
     try {
@@ -179,7 +178,7 @@ export default function ProjectEditPage() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/diagrams/${diagramId}`, {
+      const response = await fetch(`/api/projects/${project?.id}/diagrams/${diagramId}`, {
         method: "DELETE",
       });
 

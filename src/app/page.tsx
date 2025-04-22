@@ -2,17 +2,19 @@ import { authOptions } from "@/lib/nextAuth";
 import { getServerSession } from "next-auth";
 import { JSX } from "react";
 import Navbar from "./Navbar";
-import getUserProjects from '@/db/getUserProjects';
+import getUserProjects from "@/db/getUserProjects";
 
-export default async function Home():Promise<JSX.Element> {
+export default async function Home(): Promise<JSX.Element> {
   const session = await getServerSession(authOptions);
-  const projects =session? await getUserProjects(session.user.id):[];
+  const projects = session ? await getUserProjects(session.user.id) : [];
 
   return (
     <div>
-      <Navbar/>
+      <Navbar />
       <br />
-      {/* {session&&JSON.stringify(session)} */}
+      {/* {session&&JSON.stringify(session)}
+       */}
+       <img src={`/api/projects/cm9dcffle0006ijvdn2xvj5mc/diagrams/cm9dchy8e000aijvde2qa12ko/image`} alt="Uploaded image" />
       <br />
       <br />
       <br />

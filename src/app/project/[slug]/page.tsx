@@ -45,9 +45,10 @@ import { handleSubmit } from "@/db/action/updateProject";
 import LikeButton from "@/components/LikeProject";
 import ProjectComments from "@/components/ProjectComments";
 import { prisma } from "@/lib/prisma";
+import getLikeCount from "@/db/getLikeCount";
 
 // This is a Server Component
-export default async function ProjectPage({ params }) {
+export default async function ProjectPage({ params }:{params:{slug:string}}) {
   // In a real app, you would fetch this data from your API or database
   // For example: const project = await getProjectById(params.id);
 
@@ -57,11 +58,7 @@ export default async function ProjectPage({ params }) {
   const session = await getServerSession(authOptions);
   
   // Get the like count for the project
-  const likeCount = await prisma.projectLike.count({
-    where: {
-      projectId: project.id,
-    },
-  });
+  const likeCount = getLikeCount(project)
   
   // Check if current user has liked the project
   let userHasLiked = false;

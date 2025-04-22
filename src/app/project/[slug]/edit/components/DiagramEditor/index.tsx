@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { encode } from "plantuml-encoder";
+// import { encode } from "plantuml-encoder";
 import { DiagramToolbar } from "./DiagramToolbar";
 import { CodeEditor } from "./CodeEditor";
 import { DiagramPreview } from "./DiagramPreview";
@@ -46,8 +46,6 @@ export default function DiagramEditor({
   );
   const [diagramUrl, setDiagramUrl] = useState<string | null>(null);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  // const diagramUrl = `http://localhost:3030/png/${code?encode(code):""}`;
-  // const diagramUrl = `http://localhost:3030/png}`;
 
   useEffect(() => {
     setCode(diagram.code);
