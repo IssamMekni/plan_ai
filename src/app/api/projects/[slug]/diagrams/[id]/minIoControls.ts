@@ -1,6 +1,22 @@
 import plantumlEncoder from "plantuml-encoder";
-import {  PutObjectCommand } from "@aws-sdk/client-s3";
+import {  PutObjectCommand ,DeleteObjectCommand} from "@aws-sdk/client-s3";
 import { s3 } from "@/lib/s3";
+// import { s3 } from "@/lib/s3";
+
+export async function deleteImageFromStorage(filename: string) {
+  try {
+    const deleteParams = {
+      Bucket: process.env.S3_BUCKET!,
+      Key: filename,
+    };
+    
+    await s3.send(new DeleteObjectCommand(deleteParams));
+    return true;
+  } catch (error) {
+    console.error("Error deleting image from storage:", error);
+    throw error;
+  }
+}
 export async function code2imgl(code: string) {
   const encoded = plantumlEncoder.encode(code);
   const plantumlServer = process.env.PLANTUML_SERVER; 

@@ -14,7 +14,7 @@ export default async function Home(): Promise<JSX.Element> {
       <br />
       {/* {session&&JSON.stringify(session)}
        */}
-       <img src={`/api/projects/cm9dcffle0006ijvdn2xvj5mc/diagrams/cm9dchy8e000aijvde2qa12ko/image`} alt="Uploaded image" />
+       {/* <img src={session.user.image} alt="Uploaded image" /> */}
       <br />
       <br />
       <br />

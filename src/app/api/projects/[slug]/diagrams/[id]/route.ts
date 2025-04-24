@@ -1,24 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { code2imgl, img2url } from "./minIoControls";
+import { code2imgl, deleteImageFromStorage, img2url } from "./minIoControls";
 
 interface UpdateDiagramBody {
   code?: string;
   name?: string;
 }
 
+
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string, slug: string } }
 ) {
   try {
+    // First delete the image from storage
+    await deleteImageFromStorage(params.id);
+    
+    // Then delete the diagram record from the database
     await prisma.diagram.delete({
       where: { id: params.id },
     });
-
+    
     return NextResponse.json({ success: true });
-  } catch (personallyerror) {
-    console.error("Error deleting diagram:", "error");
+  } catch (error) {
+    console.error("Error deleting diagram:", error);
     return NextResponse.json(
       { error: "Failed to delete diagram" },
       { status: 500 }

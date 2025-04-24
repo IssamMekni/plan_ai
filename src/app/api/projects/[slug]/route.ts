@@ -2,6 +2,7 @@
 import getProject from "@/db/getProjectById";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { deleteImageFromStorage } from "./diagrams/[id]/minIoControls";
 
 
 interface UpdateDiagramBody {
@@ -55,15 +56,30 @@ export async function PATCH(request: Request, { params }: { params: { slug: stri
 
 export async function DELETE(request: Request, { params }: { params: { slug: string } }) {
   try {
-    await prisma.diagram.delete({
+    // First, get all diagrams associated with this project
+    const diagrams = await prisma.diagram.findMany({
+      where: { projectId: params.slug }
+    });
+    
+    // Delete each diagram's image from storage
+    const deleteImagePromises = diagrams.map(diagram => 
+      deleteImageFromStorage(diagram.id)
+    );
+    
+    // Wait for all image deletions to complete
+    await Promise.all(deleteImagePromises);
+    
+    // Now delete the project from the database
+    // This will cascade delete the diagrams thanks to the onDelete: Cascade relation
+    await prisma.project.delete({
       where: { id: params.slug }
     });
-
+    
     return NextResponse.json({ success: true });
-  } catch ( personallyerror) {
-    console.error("Error deleting diagram:", "error");
+  } catch (error) {
+    console.error("Error deleting project:", error);
     return NextResponse.json(
-      { error: "Failed to delete diagram" },
+      { error: "Failed to delete project" },
       { status: 500 }
     );
   }

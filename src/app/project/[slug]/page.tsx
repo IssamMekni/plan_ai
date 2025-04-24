@@ -46,6 +46,7 @@ import LikeButton from "@/components/LikeProject";
 import ProjectComments from "@/components/ProjectComments";
 import { prisma } from "@/lib/prisma";
 import getLikeCount from "@/db/getLikeCount";
+import { DeleteProjectButton } from "./Delete";
 
 // This is a Server Component
 export default async function ProjectPage({ params }:{params:{slug:string}}) {
@@ -261,10 +262,7 @@ export default async function ProjectPage({ params }:{params:{slug:string}}) {
                   Share
                 </Button>
               </div>
-              <Button className="w-full" variant="destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Project
-              </Button>
+              <DeleteProjectButton projectId={project.id} />
             </CardFooter>
           </Card>
         </div>
