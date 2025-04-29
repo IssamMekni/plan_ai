@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/prisma";
-const getUserProjects = async (id: string) => {
+
+const getPublicProjects = async (page = 1, pageSize = 5) => {
+  const skip = (page - 1) * pageSize;
+  
   const projects = await prisma.project.findMany({
     where: {
-      userId: id,
+      isPublic: true,
     },
     include: {
       diagrams: {},
@@ -16,12 +19,19 @@ const getUserProjects = async (id: string) => {
     orderBy: {
       createdAt: 'desc' // Order by most recent
     },
+    take: pageSize,
+    skip: skip
   });
-  return projects.map((project) => ({
+
+  return projects.map(project => ({
     ...project,
     likes: project?._count.likes || 0,
     diagramsCount: project.diagrams.length,
-    commentCount: project?._count.comments || 0,
+    commentCount: project?._count.comments || 0 // Added commentCount for consistency
   }));
 };
-export default getUserProjects;
+
+// To get just the last 5 public projects:
+// const lastFivePublicProjects = await getPublicProjects();
+
+export default getPublicProjects;

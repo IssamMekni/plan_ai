@@ -11,8 +11,9 @@ export async function handleSubmit(formData: FormData) {
 
   const userId = session.user.id; 
   const name = formData.get("project-name") as string;
-  const description = formData.get("descripion") as string;
-
+  const description = formData.get("description") as string;
+  console.log(formData);
+  
   // Save to database
   await prisma.project.create({
     data: {

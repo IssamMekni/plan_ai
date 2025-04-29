@@ -13,6 +13,9 @@ const getPublicProjects = async () => {
         },
       },
     },
+    orderBy: {
+      updatedAt: 'desc' // Order by most recent
+    },
   });
   return projects.map(project => ({
     ...project,

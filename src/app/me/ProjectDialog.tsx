@@ -31,7 +31,7 @@ export default function ClientDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Open Project Dialog</Button>
+        <Button>Add project</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -47,7 +47,7 @@ export default function ClientDialog() {
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" name="description"  />
             </div>
-            <DialogClose type="submit" >
+            <DialogClose type="submit" className="w-full bg-primary p-2 rounded-md text-white">
                 add
             </DialogClose>
           </div>
