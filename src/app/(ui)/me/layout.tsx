@@ -1,5 +1,5 @@
 'use client'
-import NextAuthProvider from "../provider/NextAuthProvider";
+import NextAuthProvider from "../../provider/NextAuthProvider";
 
 
 export default function RootLayout({
