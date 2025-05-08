@@ -1,8 +1,4 @@
 import ProjectBtn from "@/components/ProjectCart";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import getUserProjects from "@/db/getUserProjects";
 import { authOptions } from "@/lib/nextAuth";
 import { getServerSession } from "next-auth";
@@ -28,7 +24,7 @@ const MePage = async () => {
   if (!user) redirect("/signin");
 
   return (
-    <div>
+    <div className="p-10">
       <div className="flex flex-col gap-6 container m-auto py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">My Profile</h1>

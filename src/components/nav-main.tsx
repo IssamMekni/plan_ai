@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
 
@@ -33,8 +33,8 @@ export function NavMain({
   }[]
 }) {
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+    <SidebarGroup >
+      <SidebarGroupLabel></SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -42,20 +42,21 @@ export function NavMain({
             asChild
             defaultOpen={item.isActive}
             className="group/collapsible"
+            
           >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
+            <SidebarMenuItem >
+              <CollapsibleTrigger asChild className="hover:bg-primary-foreground">
+                <SidebarMenuButton tooltip={item.title} >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 " />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
-              <CollapsibleContent>
+              <CollapsibleContent >
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
+                    <SidebarMenuSubItem key={subItem.title} className="hover:bg-primary-foreground">
+                      <SidebarMenuSubButton asChild className="hover:bg-primary-foreground">
                         <a href={subItem.url}>
                           <span>{subItem.title}</span>
                         </a>

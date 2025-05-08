@@ -14,10 +14,11 @@ export default async function Login() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8 p-8shadow">
         <h2 className="text-center text-3xl font-extrabold ">Log in to your account</h2>
-        <SigninButton/>
+        <SigninButton imgUrl='google.svg' name='Google' provider='google' />
+        <SigninButton imgUrl='github.svg' name='Github' provider='github' />
         <form className="mt-8 space-y-6">
           <div>
-            <Label htmlFor="email">Email address</Label>
+            {/* <Label htmlFor="email">Email address</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
           <div>
@@ -25,7 +26,7 @@ export default async function Login() {
             <Input id="password" name="password" type="password" autoComplete="current-password" required />
           </div>
           <div>
-            <Button type="submit" className="w-full">Log in</Button>
+            <Button type="submit" className="w-full">Log in</Button> */}
           </div>
         </form>
       </div>
