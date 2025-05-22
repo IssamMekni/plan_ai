@@ -22,14 +22,14 @@ export const authOptions: AuthOptions = {
         if (user) {
           session.user.id = user.id; 
         } else if (token?.sub) {
-          session.user.id = token.sub; // استخدام sub من JWT كمعرف
+          session.user.id = token.sub; 
         }
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id; // تمرير id إلى JWT عند تسجيل الدخول الأولي
+        token.sub = user.id; 
       }
       return token;
     },

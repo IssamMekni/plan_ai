@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const umlCode = await req.text();
     const encoded = plantumlEncoder.encode(umlCode);
     const plantumlServer = process.env.PLANTUML_SERVER; // Replace with your PlantUML server URL
-    const response = await fetch(`${plantumlServer}/png/${encoded}`);
+    const response = await fetch(`${plantumlServer}/svg/${encoded}`);
     if (!response.ok) {
       return new NextResponse("Failed to fetch from PlantUML server", {
         status: 500,

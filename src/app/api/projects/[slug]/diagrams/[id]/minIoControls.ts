@@ -20,7 +20,7 @@ export async function deleteImageFromStorage(filename: string) {
 export async function code2imgl(code: string) {
   const encoded = plantumlEncoder.encode(code);
   const plantumlServer = process.env.PLANTUML_SERVER; 
-  const response = await fetch(`${plantumlServer}/png/${encoded}`);
+  const response = await fetch(`${plantumlServer}/svg/${encoded}`);
   if (!response.ok) {
     throw new Error("Failed to fetch from PlantUML server");
   }
@@ -36,7 +36,7 @@ export async function img2url({
     filename: string;
   }) {
     try {
-      const contentType = "image/png";
+      const contentType = "image/svg+xml";
       const uploadParams = {
         Bucket: process.env.S3_BUCKET!,
         Key: filename,

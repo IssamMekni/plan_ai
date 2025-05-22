@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { code2imgl, deleteImageFromStorage, img2url } from "./minIoControls";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/nextAuth";
+import getProject from "@/db/getProjectById";
 
 interface UpdateDiagramBody {
   code?: string;
@@ -13,6 +16,20 @@ export async function DELETE(
   { params }: { params: { id: string, slug: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const project = await getProject(params.slug);
+    // console.log("diagram", diagram?.userId);
+    
+    if (!project) {
+      return NextResponse.json({ error: "project not found" }, { status: 404 });
+    }
+    if (project.userId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     // First delete the image from storage
     await deleteImageFromStorage(params.id);
     
@@ -34,6 +51,20 @@ export async function DELETE(
 
 export async function PATCH(req: Request, { params }: { params: { id: string,slug: string } }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const project = await getProject(params.slug);
+    // console.log("diagram", diagram?.userId);
+    
+    if (!project) {
+      return NextResponse.json({ error: "project not found" }, { status: 404 });
+    }
+    if (project.userId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const body = await req.json();
     const imgblob = await code2imgl(body.code);
     await img2url({buffer: imgblob, filename: params.id});

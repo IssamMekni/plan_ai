@@ -38,6 +38,7 @@ import {
 import { handleSubmit } from "@/db/action/updateProject";
 import LikeButton from "@/components/LikeProject";
 import { DeleteProjectButton } from "./Delete";
+import DownloadButton from "./DownloadButton";
 // import { DeleteProjectButton } from "../project/[slug]/Delete";
 
 interface ProjectInfoCardProps {
@@ -109,6 +110,7 @@ export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: P
               </Button>
             </div>
             <DeleteProjectButton projectId={project.id} />
+            <DownloadButton URL={`/api/projects/${project.id}/download-images`} projectId={project.id}/>
           </>
         ) : (
           <Button className="w-full" variant="outline">

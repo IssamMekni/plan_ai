@@ -11,6 +11,7 @@ export default async function Home(): Promise<JSX.Element> {
   return (
     <div>
       <Navbar />
+      <img src="https://www.svgrepo.com/show/230754/placeholder-pin.svg" width={100} height={100} alt="" />
       <br />
       {/* {session&&JSON.stringify(session)}
        */}

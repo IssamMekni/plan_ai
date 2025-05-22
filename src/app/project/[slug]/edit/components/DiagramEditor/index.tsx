@@ -59,12 +59,12 @@ export default function DiagramEditor({
       });
   
       const blob = await response.blob();
+      
       const url = URL.createObjectURL(blob);
       setDiagramUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev); // clean up old blob URL
         return url;
       });
-      console.log(url);
     } catch (err) {
       console.error("Failed to fetch diagram:", err);
     }

@@ -31,7 +31,7 @@ export async function GET(
     // Return the image with proper content type
     return new NextResponse(buffer, {
       headers: {
-        'Content-Type': response.ContentType || 'image/png',
+        'Content-Type': response.ContentType || 'image/svg+xml',
         // 'Cache-Control': 'public, max-age=31536000',
       },
     });

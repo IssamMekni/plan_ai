@@ -23,7 +23,7 @@ export default async function ProjectPage({ params }:{params:{slug:string}}) {
   
   // If project is private and user is not the owner, redirect to homepage
   if (!project.isPublic && !isOwner) {
-    redirect("/community"); // or to a custom "unauthorized" or "not found" page
+    redirect(`/project/${slug}/unauthorized`); // or to a custom "unauthorized" or "not found" page
   }
   
   // Get the like count for the project
