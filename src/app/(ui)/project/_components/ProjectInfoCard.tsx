@@ -97,7 +97,7 @@ export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: P
       <CardFooter className="flex flex-col gap-2">
         {isOwner ? (
           <>
-            <div className="flex w-full gap-2">
+            <div className="grid grid-cols-2 w-full gap-2">
               <Link href={"/project/" + slug + "/edit"} className="flex-1">
                 <Button className="w-full" variant="default">
                   <PenSquare className="h-4 w-4 mr-2" />
@@ -109,8 +109,11 @@ export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: P
                 Share
               </Button>
             </div>
+            <div className="w-full text-center grid grid-cols-2 gap-2">
+
             <DeleteProjectButton projectId={project.id} />
-            <DownloadButton URL={`/api/projects/${project.id}/download-images`} projectId={project.id}/>
+            <DownloadButton  projectId={project.id}/>
+            </div>
           </>
         ) : (
           <Button className="w-full" variant="outline">

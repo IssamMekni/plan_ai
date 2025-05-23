@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   const newProject = await prisma.project.create({
     data: {
-      name: `${originalProject.name} (نسخة)`,
+      name: `${originalProject.name}(copy)`,
       description: originalProject.description,
       imageUrl: originalProject.imageUrl,
       isPublic: false,

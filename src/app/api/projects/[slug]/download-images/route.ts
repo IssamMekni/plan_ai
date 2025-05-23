@@ -144,10 +144,10 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const imageUrls = project.diagrams.map((diagram) => {
+    const images = project.diagrams.map((diagram) => {
       const encoded = plantumlEncoder.encode(diagram.code);
       const plantumlServer = process.env.PLANTUML_SERVER;
-      return `${plantumlServer}/png/${encoded}`;
+      return {name: diagram.name, url: `${plantumlServer}/png/${encoded}`};
     });
 
     // إنشاء buffer للاحتفاظ بمحتوى الـ zip
@@ -172,13 +172,13 @@ export async function GET(
     });
 
     // تحميل الصور وإضافتها
-    for (const [index, url] of imageUrls.entries()) {
+    for (const [index, img] of images.entries()) {
       try {
-        const response = await fetch(url);
+        const response = await fetch(img.url);
         if (response.ok) {
           const arrayBuffer = await response.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
-          archive.append(buffer, { name: `diagram_${index + 1}.png` });
+          archive.append(buffer, { name: `${img.name}.png` });
         }
       } catch (error) {
         console.error(`Error with image ${index + 1}:`, error);

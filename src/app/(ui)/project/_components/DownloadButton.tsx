@@ -1,13 +1,16 @@
 'use client';
-export default function DownloadButton({URL}:{URL:string}) {
+
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+
+export default function DownloadButton({projectId}:{projectId:string}) {
   const handleDownload = () => {
-    console.log("url :",URL);
-    window.open(URL,"_blank");
+    window.open(`/api/projects/${projectId}/download-images`,"_blank");
   };
 
   return (
-    <button onClick={handleDownload}>
-      downlode
-    </button>
+    <Button onClick={handleDownload} size={"default"}>
+      Download <Download/>
+    </Button>
   );
 }
