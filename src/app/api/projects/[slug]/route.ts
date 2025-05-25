@@ -2,7 +2,7 @@
 import getProject from "@/db/getProjectById";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { deleteImageFromStorage } from "./diagrams/[id]/minIoControls";
+import { deleteImageFromStorage } from "../../../../lib/minIoControls";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 

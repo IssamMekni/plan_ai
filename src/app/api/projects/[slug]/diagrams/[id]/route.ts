@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { code2imgl, deleteImageFromStorage, img2url } from "./minIoControls";
+import { code2img, deleteImageFromStorage, img2url } from "@/lib/minIoControls";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 import getProject from "@/db/getProjectById";
@@ -66,7 +66,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string,slu
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     const body = await req.json();
-    const imgblob = await code2imgl(body.code);
+    const imgblob = await code2img(body.code);
     await img2url({buffer: imgblob, filename: params.id});
         
     const fileUrl = `/api/projects/${params.slug}/diagrams/${params.id}/image`;

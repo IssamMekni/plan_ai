@@ -1,3 +1,4 @@
+// lib/minIoControls.ts
 import plantumlEncoder from "plantuml-encoder";
 import {  PutObjectCommand ,DeleteObjectCommand} from "@aws-sdk/client-s3";
 import { s3 } from "@/lib/s3";
@@ -17,7 +18,7 @@ export async function deleteImageFromStorage(filename: string) {
     throw error;
   }
 }
-export async function code2imgl(code: string) {
+export async function code2img(code: string) {
   const encoded = plantumlEncoder.encode(code);
   const plantumlServer = process.env.PLANTUML_SERVER; 
   const response = await fetch(`${plantumlServer}/svg/${encoded}`);

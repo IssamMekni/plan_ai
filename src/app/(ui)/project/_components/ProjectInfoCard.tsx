@@ -39,6 +39,7 @@ import { handleSubmit } from "@/db/action/updateProject";
 import LikeButton from "@/components/LikeProject";
 import { DeleteProjectButton } from "./Delete";
 import DownloadButton from "./DownloadButton";
+import CopyButton from "./CopyButton";
 // import { DeleteProjectButton } from "../project/[slug]/Delete";
 
 interface ProjectInfoCardProps {
@@ -48,7 +49,12 @@ interface ProjectInfoCardProps {
   slug: string;
 }
 
-export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: ProjectInfoCardProps) {
+export default function ProjectInfoCard({
+  project,
+  isOwner,
+  likeCount,
+  slug,
+}: ProjectInfoCardProps) {
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM d, yyyy");
   };
@@ -60,9 +66,7 @@ export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: P
           <CardTitle className="text-2xl font-bold justify-self-start w-full">
             {project.name || "Untitled Project"}
           </CardTitle>
-          {isOwner && (
-            <ProjectEditDialog project={project} />
-          )}
+          {isOwner && <ProjectEditDialog project={project} />}
           <ProjectVisibilityBadge isPublic={project.isPublic} />
         </div>
         {project.description && (
@@ -110,16 +114,22 @@ export default function ProjectInfoCard({ project, isOwner, likeCount, slug }: P
               </Button>
             </div>
             <div className="w-full text-center grid grid-cols-2 gap-2">
-
-            <DeleteProjectButton projectId={project.id} />
-            <DownloadButton  projectId={project.id}/>
+              <DeleteProjectButton projectId={project.id} />
+              <DownloadButton projectId={project.id} />
+              <CopyButton projectId={project.id} />
             </div>
           </>
         ) : (
-          <Button className="w-full" variant="outline">
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+          <>
+            <div className="grid grid-cols-2 w-full gap-2">
+              <Button className="w-full" variant="outline">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+              <DownloadButton projectId={project.id} />
+              <CopyButton  projectId={project.id}/>
+            </div>
+          </>
         )}
       </CardFooter>
     </Card>
@@ -148,10 +158,7 @@ function ProjectEditDialog({ project }: { project: Project }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="p-1 h-fit justify-self-end mr-1"
-        >
+        <Button variant="outline" className="p-1 h-fit justify-self-end mr-1">
           <Settings />
         </Button>
       </DialogTrigger>
@@ -159,8 +166,7 @@ function ProjectEditDialog({ project }: { project: Project }) {
         <DialogHeader>
           <DialogTitle>Edit project</DialogTitle>
           <DialogDescription>
-            Make changes to your project here. Click save when
-            you're done.
+            Make changes to your project here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit}>
@@ -190,9 +196,7 @@ function ProjectEditDialog({ project }: { project: Project }) {
                 Username
               </Label>
               <RadioGroup
-                defaultValue={
-                  project.isPublic ? "true" : "false"
-                }
+                defaultValue={project.isPublic ? "true" : "false"}
                 name="project-visibility"
               >
                 <div className="flex items-center space-x-2">
@@ -208,7 +212,10 @@ function ProjectEditDialog({ project }: { project: Project }) {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose type="submit" className="text-background bg-primary hover:bg-primary/90 p-2 rounded-md">
+            <DialogClose
+              type="submit"
+              className="text-background bg-primary hover:bg-primary/90 p-2 rounded-md"
+            >
               Save changes
             </DialogClose>
           </DialogFooter>
