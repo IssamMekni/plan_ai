@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/nextAuth";
 
 export async function POST(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string}> }
 ) {
   const session = await getServerSession(authOptions);
   
@@ -15,7 +15,8 @@ export async function POST(
   }
 
   try {
-    const projectId = params.slug;
+    const { slug:projectId } = await params;
+
     const userId = session.user.id as string;
 
     // Check if the like already exists

@@ -136,10 +136,12 @@ import plantumlEncoder from "plantuml-encoder";
 // نسخة بديلة باستخدام Node.js streams (إذا كان الأول لا يعمل)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string}> }
 ) {
   try {
-    const project = await getProject(params.slug);
+    const { slug } = await params;
+    const project = await getProject(slug);
+
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }

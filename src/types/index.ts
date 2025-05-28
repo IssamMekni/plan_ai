@@ -2,11 +2,11 @@ import { User, Project as PrismaProject, Diagram } from '@prisma/client';
 import { Session } from 'next-auth';
 
 export interface Project extends PrismaProject {
-  author: User;
+  // author: User;
   diagrams: Diagram[];
-  likes: { id: string }[];
+  // likes: { id: string }[];
   _count?: {
-    likes: number;
+    // likes: number;
   };
 }
 

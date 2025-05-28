@@ -6,7 +6,7 @@ import { code2img, img2url } from "@/lib/minIoControls";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     // Validate session
@@ -16,13 +16,15 @@ export async function POST(
     }
 
     // Validate slug parameter
-    if (!params.slug || typeof params.slug !== 'string') {
+    const { slug } = await params;
+
+    if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
     // Find the original project
     const originalProject = await prisma.project.findUnique({
-      where: { id: params.slug },
+      where: { id: slug },
       include: { 
         diagrams: true,
         user: {
@@ -156,14 +158,14 @@ export async function POST(
     console.error('Project duplication failed:', error);
     
     // Handle specific Prisma errors
-    if (error.code === 'P2002') {
+    if (error === 'P2002') {
       return NextResponse.json(
         { error: "A project with this name already exists" }, 
         { status: 409 }
       );
     }
     
-    if (error.code === 'P2025') {
+    if (error === 'P2025') {
       return NextResponse.json(
         { error: "Project not found" }, 
         { status: 404 }

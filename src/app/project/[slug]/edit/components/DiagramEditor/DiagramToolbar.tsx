@@ -1,7 +1,7 @@
 // DiagramToolbar.tsx
 import { Button } from "@/components/ui/button";
 import { Save, RefreshCw } from "lucide-react";
-import { RefObject } from "react";
+// import { RefObject } from "react";
 
 interface DiagramToolbarProps {
   viewMode: "split" | "code" | "preview";
@@ -10,7 +10,7 @@ interface DiagramToolbarProps {
   isProcessing: boolean;
   diagramName: string;
   updatedAt: string;
-  buttonRef: RefObject<HTMLButtonElement>;
+  // buttonRef: RefObject<HTMLButtonElement>;
 }
 
 export function DiagramToolbar({

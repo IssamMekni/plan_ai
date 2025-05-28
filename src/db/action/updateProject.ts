@@ -9,11 +9,15 @@ export async function handleSubmit(formData: FormData) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user) throw new Error("Unauthorized");
 
-  const userId = session.user.id; 
+  // const userId = session.user.id; 
   const name = formData.get("project-name") as string;
   const description = formData.get("project-description") as string;
   const projectId = formData.get("project-id") as string;
-  const isPublic = formData.get("project-visibility") as string;    
+  const isPublic = formData.get("project-visibility") as string;  
+  const imageUrl = formData.get("project-image") as string;
+  console.log(imageUrl);
+  
+  
   // Save to database
   await prisma.project.update({
     where:{
@@ -23,6 +27,7 @@ export async function handleSubmit(formData: FormData) {
       name,
       description,
       isPublic: isPublic === "true",
+      imageUrl ,
     },
   });
 

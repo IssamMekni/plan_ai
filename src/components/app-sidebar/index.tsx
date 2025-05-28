@@ -1,9 +1,9 @@
+// components/app-sidebar/index.tsx
 import * as React from "react";
-import { FolderOpen } from "lucide-react";
-
+import { FolderOpen, type LucideIcon } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { NavPages } from "@/components/nav-pages";
 import {
   Sidebar,
   SidebarContent,
@@ -14,64 +14,28 @@ import {
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 import getUserProjects from "@/db/getUserProjects";
-import { NavPages } from "../nav-pages";
 
-// This is sample data.
-// const data = {
-//   // user: {
-//   //   name: "shadcn",
-//   //   email: "m@example.com",
-//   //   avatar: "/avatars/shadcn.jpg",
-//   // },
-//   teams: [
-//     {
-//       name: "Acme Inc",
-//       // logo: GalleryVerticalEnd,
-//       plan: "Enterprise",
-//     },
-//     {
-//       name: "Acme Corp.",
-//       // logo: AudioWaveform,
-//       plan: "Startup",
-//     },
-//     {
-//       name: "Evil Corp.",
-//       // logo: Command,
-//       plan: "Free",
-//     },
-//   ],
+interface NavItem {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  items?: NavSubItem[];
+}
 
-//   projects: [
-//     {
-//       name: "Design Engineering",
-//       url: "#",
-//       icon: "Frame",
-//     },
-//     {
-//       name: "Sales & Marketing",
-//       url: "#",
-//       icon: "PieChart",
-//     },
-//     {
-//       name: "Travel",
-//       url: "#",
-//       icon: "Map",
-//     },
-//   ],
-// };
+interface NavSubItem {
+  title: string;
+  url: string;
+}
 
-export async function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
-  // const { data: session } = useSession();
-  // console.log(session?.user);
+export async function AppSidebar() {
   const pages = [
     { name: "home", url: "/" },
-    { name: "my projecta", url: "/me" },
+    { name: "my projects", url: "/me" },
     { name: "community", url: "/community" },
     { name: "settings", url: "/settings" },
   ];
-  const navMain = [
+  const navMain: NavItem[] = [
     {
       title: "Projects",
       url: "#",
@@ -81,16 +45,25 @@ export async function AppSidebar({
     },
   ];
   const session = await getServerSession(authOptions);
-  const projects = await getUserProjects(session?.user?.id);
-  navMain.find((item) => item.title === "Projects").items = projects.map(
+  const projects = session?.user?.id ? await getUserProjects(session.user.id) : [];
+  navMain.find((item) => item.title === "Projects")!.items = projects.map(
     (project) => ({
       title: project.name,
       url: `/project/${project.id}`,
     })
   );
 
+  // Validate user object before passing to NavUser
+  const user = session?.user && session.user.name && session.user.email && session.user.image
+    ? {
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+      }
+    : null;
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="bg-background hover:bg-background">
         {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
@@ -99,8 +72,7 @@ export async function AppSidebar({
         <NavPages pages={pages} />
       </SidebarContent>
       <SidebarFooter className="bg-background">
-        {/* {JSON.stringify(session?.user)} */}
-        {session?.user && <NavUser user={session?.user} />}
+        {user && <NavUser user={user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

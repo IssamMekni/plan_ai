@@ -6,10 +6,11 @@ import { s3 } from '@/lib/s3';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const filename = params.id;
+
+    const { id: filename } = await params;
     
     const command = new GetObjectCommand({
       Bucket: process.env.S3_BUCKET!,

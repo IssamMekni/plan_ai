@@ -1,17 +1,15 @@
-// app/api/projects/[id]/comments/route.ts
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/nextAuth";
-// import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Get all comments for a project
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const session = await getServerSession(authOptions);
-  const projectId = params.slug;
+  const { slug: projectId } = await params;
   const userId = session?.user?.id;
 
   try {
@@ -38,9 +36,7 @@ export async function GET(
       },
     });
 
-    // If user is logged in, check which comments they've liked
     let commentsWithLikeStatus = comments;
-
     if (userId) {
       const userLikes = await prisma.commentLike.findMany({
         where: {
@@ -52,7 +48,6 @@ export async function GET(
       });
 
       const likedCommentIds = new Set(userLikes.map((like) => like.commentId));
-
       commentsWithLikeStatus = comments.map((comment) => ({
         ...comment,
         isLiked: likedCommentIds.has(comment.id),
@@ -72,15 +67,16 @@ export async function GET(
 // Post a new comment
 export async function POST(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const session = await getServerSession(authOptions);
-
+  
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   try {
-    const projectId = params.slug;
+    const { slug: projectId } = await params;
     const userId = session.user.id as string;
     const { content } = await request.json();
 
@@ -122,4 +118,3 @@ export async function POST(
     );
   }
 }
-

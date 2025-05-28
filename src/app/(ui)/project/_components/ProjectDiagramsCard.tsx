@@ -102,7 +102,7 @@ export default function ProjectDiagramsCard({ project, isOwner }: ProjectDiagram
 //   );
 // }
 
-function EmptyDiagramsState({ isOwner }) {
+function EmptyDiagramsState({ isOwner }: { isOwner: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
       <p>No diagrams found for this project.</p>

@@ -48,6 +48,7 @@ export default function ProjectEditPage() {
         if (data.diagrams && data.diagrams.length > 0) {
           setActiveDiagram(data.diagrams[0]);
           setEditorContent(data.diagrams[0].code);
+          setCode(data.diagrams[0].code);
         }
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -65,37 +66,33 @@ export default function ProjectEditPage() {
   }, [params.slug, toast]);
 
   const handleSelectDiagram = async (diagram: Diagram) => {
-    await handleSaveDiagram();
+    // Save current diagram before switching
+    if (activeDiagram && code !== activeDiagram.code) {
+      await handleSaveDiagram();
+    }
+    
     setActiveDiagram(diagram);
     setEditorContent(diagram.code);
+    setCode(diagram.code);
   };
 
   const handleCodeChange = (newCode: string) => {
     setEditorContent(newCode);
+    setCode(newCode);
   };
 
   const handleSaveDiagram = async () => {
-    if (!activeDiagram) return;
+    if (!activeDiagram || !project) return;
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/projects/${project?.id}/diagrams/${activeDiagram.id}`, {
+      const response = await fetch(`/api/projects/${project.id}/diagrams/${activeDiagram.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code }),
       });
 
       if (!response.ok) throw new Error("Failed to save diagram");
-
-      // const imageResponse = await fetch(
-      //   `/api/diagrams/${activeDiagram.id}/generate`,
-      //   {
-      //     method: "POST",
-      //   }
-      // );
-
-      // if (!imageResponse.ok)
-      //   throw new Error("Failed to generate diagram image");
 
       const updatedDiagram: Diagram = await response.json();
 
@@ -126,10 +123,13 @@ export default function ProjectEditPage() {
       setIsProcessing(false);
     }
   };
+
   const handleCreateDiagram = async (name: string) => {
+    if (!project) return;
+
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/projects/${project?.id}/diagrams`, {
+      const response = await fetch(`/api/projects/${project.id}/diagrams`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -153,6 +153,7 @@ export default function ProjectEditPage() {
 
       setActiveDiagram(newDiagram);
       setEditorContent(newDiagram.code);
+      setCode(newDiagram.code);
 
       toast({
         title: "Success",
@@ -174,18 +175,18 @@ export default function ProjectEditPage() {
     if (!window.confirm("Are you sure you want to delete this diagram?")) {
       return;
     }
-    console.log(diagramId);
+
+    if (!project) return;
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/projects/${project?.id}/diagrams/${diagramId}`, {
+      const response = await fetch(`/api/projects/${project.id}/diagrams/${diagramId}`, {
         method: "DELETE",
       });
 
       if (!response.ok) throw new Error("Failed to delete diagram");
 
-      const updatedDiagrams =
-        project?.diagrams.filter((d) => d.id !== diagramId) || [];
+      const updatedDiagrams = project.diagrams.filter((d) => d.id !== diagramId);
       setProject((prev) =>
         prev
           ? {
@@ -195,13 +196,17 @@ export default function ProjectEditPage() {
           : null
       );
 
+      // If we're deleting the active diagram, switch to another one or clear
       if (activeDiagram && activeDiagram.id === diagramId) {
         if (updatedDiagrams.length > 0) {
-          setActiveDiagram(updatedDiagrams[0]);
-          setEditorContent(updatedDiagrams[0].code);
+          const nextDiagram = updatedDiagrams[0];
+          setActiveDiagram(nextDiagram);
+          setEditorContent(nextDiagram.code);
+          setCode(nextDiagram.code);
         } else {
           setActiveDiagram(null);
           setEditorContent("");
+          setCode("");
         }
       }
 
@@ -221,43 +226,27 @@ export default function ProjectEditPage() {
     }
   };
 
-  const handleAiSuggestion = async (prompt: string) => {
-    if (!activeDiagram) return;
-
-    setIsProcessing(true);
-    try {
-      const response = await fetch(`/api/ai`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          currentCode: editorContent,
-          diagramType: activeDiagram.name,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to get AI suggestion");
-
-      const { suggestedCode }: { suggestedCode: string } =
-        await response.json();
-        setCode(c => suggestedCode);
-        setEditorContent(c=>suggestedCode)
-        
-      toast({
-        title: "Success",
-        description: "AI suggestion applied",
-      });
-    } catch (error) {
-      console.error("Error getting AI suggestion:", error);
-      toast({
-        title: "Error",
-        description: "Failed to get AI suggestion",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+  // Updated AI suggestion handler for conversational approach
+  const handleAiSuggestion = (newCode: string) => {
+    setCode(newCode);
+    setEditorContent(newCode);
+    
+    toast({
+      title: "AI Applied",
+      description: "AI suggestion applied to diagram",
+    });
   };
+
+  // Auto-save functionality (optional)
+  useEffect(() => {
+    if (!activeDiagram || code === activeDiagram.code) return;
+
+    const autoSaveTimer = setTimeout(() => {
+      handleSaveDiagram();
+    }, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [code, activeDiagram]);
 
   if (loading) {
     return (
@@ -277,7 +266,7 @@ export default function ProjectEditPage() {
   }
 
   return (
-    <div className=" mx-auto px-4 py-4">
+    <div className="mx-auto px-4 py-4">
       <ProjectHeader project={project} />
 
       <div className="">
@@ -292,23 +281,28 @@ export default function ProjectEditPage() {
           />
         </div>
 
-        <div className="md:col-span-3">
+        <div className="lg:col-span-3">
           {activeDiagram ? (
-            <DiagramEditor
-              diagram={activeDiagram}
-              onCodeChange={handleCodeChange}
-              onSave={handleSaveDiagram}
-              isProcessing={isProcessing}
-              code={code}
-              setCode={setCode}
-            >
-              <AiAssistant
-                onSuggestionApplied={setEditorContent}
-                diagramName={activeDiagram.name}
-                currentDiagramCode={editorContent}
-                submitPrompt={handleAiSuggestion}
+            <div className="space-y-4">
+              <DiagramEditor
+                diagram={activeDiagram}
+                onCodeChange={handleCodeChange}
+                onSave={handleSaveDiagram}
+                isProcessing={isProcessing}
+                code={code}
+                setCode={setCode}
               />
-            </DiagramEditor>
+              
+              <AiAssistant
+                onSuggestionApplied={handleAiSuggestion}
+                diagramName={activeDiagram.name}
+                currentDiagramCode={code}
+                diagramType="sequence" // You might want to derive this from the diagram or make it configurable
+                model="gemini-2.0-flash" // You might want to make this configurable
+                diagramId={activeDiagram.id} // Pass the diagram ID for conversation persistence
+                ollamaBaseUrl="http://localhost:11434" // Make this configurable if needed
+              />
+            </div>
           ) : (
             <div className="border rounded-md p-8 text-center text-muted-foreground">
               <p>No diagram selected. Create or select a diagram to edit.</p>

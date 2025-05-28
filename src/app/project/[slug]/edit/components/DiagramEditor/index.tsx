@@ -44,7 +44,7 @@ export default function DiagramEditor({
   const [editorMode, setEditorMode] = useState<"editor" | "ai" | "both">(
     "editor"
   );
-  const [diagramUrl, setDiagramUrl] = useState<string | null>(null);
+  const [diagramUrl, setDiagramUrl] = useState<string | null>("");
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -184,7 +184,7 @@ export default function DiagramEditor({
             {/* Right panel - Preview */}
             <ResizablePanel defaultSize={50}>
               <DiagramPreview
-                diagramUrl={diagramUrl}
+                diagramUrl={""+diagramUrl}
                 diagramName={diagram.name}
               />
             </ResizablePanel>
@@ -273,7 +273,7 @@ export default function DiagramEditor({
 
           {viewMode === "preview" && (
             <DiagramPreview
-              diagramUrl={diagramUrl}
+              diagramUrl={""+diagramUrl}
               diagramName={diagram.name}
             />
           )}

@@ -13,17 +13,18 @@ interface UpdateDiagramBody {
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { slug } = await params;
 
-    const project = await getProject(params.slug);
+    const project = await getProject(slug);
     // console.log("diagram", diagram?.userId);
-    
+
     if (!project) {
       return NextResponse.json({ error: "project not found" }, { status: 404 });
     }
@@ -43,17 +44,18 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { slug } = await params;
 
-    const project = await getProject(params.slug);
+    const project = await getProject(slug);
     // console.log("diagram", diagram?.userId);
-    
+
     if (!project) {
       return NextResponse.json({ error: "project not found" }, { status: 404 });
     }
@@ -61,11 +63,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     // console.log("params", "any");
-    
+
     const body: UpdateDiagramBody = await request.json();
 
     const diagram = await prisma.diagram.update({
-      where: { id: params.slug },
+      where: { id: slug },
       data: {
         code: body.code,
         name: body.name,
@@ -85,17 +87,18 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { slug } = await params;
 
-    const project = await getProject(params.slug);
+    const project = await getProject(slug);
     // console.log("diagram", diagram?.userId);
-    
+
     if (!project) {
       return NextResponse.json({ error: "project not found" }, { status: 404 });
     }
@@ -104,7 +107,7 @@ export async function DELETE(
     }
     // First, get all diagrams associated with this project
     const diagrams = await prisma.diagram.findMany({
-      where: { projectId: params.slug },
+      where: { projectId: slug },
     });
 
     // Delete each diagram's image from storage
@@ -118,7 +121,7 @@ export async function DELETE(
     // Now delete the project from the database
     // This will cascade delete the diagrams thanks to the onDelete: Cascade relation
     await prisma.project.delete({
-      where: { id: params.slug },
+      where: { id: slug },
     });
 
     return NextResponse.json({ success: true });

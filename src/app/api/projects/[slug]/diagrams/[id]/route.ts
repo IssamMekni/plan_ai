@@ -10,20 +10,21 @@ interface UpdateDiagramBody {
   name?: string;
 }
 
-
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string, slug: string } }
+  { params }: { params: Promise<{id: string; slug: string}> }
 ) {
   try {
+    
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const project = await getProject(params.slug);
-    // console.log("diagram", diagram?.userId);
+    const { slug,id } = await params;
     
+    const project = await getProject(slug);
+    // console.log("diagram", diagram?.userId);
+
     if (!project) {
       return NextResponse.json({ error: "project not found" }, { status: 404 });
     }
@@ -31,13 +32,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     // First delete the image from storage
-    await deleteImageFromStorage(params.id);
-    
+    await deleteImageFromStorage(id);
+
     // Then delete the diagram record from the database
     await prisma.diagram.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting diagram:", error);
@@ -48,17 +49,21 @@ export async function DELETE(
   }
 }
 
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{id: string; slug: string}> }
 
-export async function PATCH(req: Request, { params }: { params: { id: string,slug: string } }) {
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { slug,id } = await params;
 
-    const project = await getProject(params.slug);
+    const project = await getProject(slug);
     // console.log("diagram", diagram?.userId);
-    
+
     if (!project) {
       return NextResponse.json({ error: "project not found" }, { status: 404 });
     }
@@ -67,23 +72,25 @@ export async function PATCH(req: Request, { params }: { params: { id: string,slu
     }
     const body = await req.json();
     const imgblob = await code2img(body.code);
-    await img2url({buffer: imgblob, filename: params.id});
-        
-    const fileUrl = `/api/projects/${params.slug}/diagrams/${params.id}/image`;
-    
+    await img2url({ buffer: imgblob, filename: id });
+
+    const fileUrl = `/api/projects/${slug}/diagrams/${id}/image`;
+
     const diagram = await prisma.diagram.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         code: body.code,
         name: body.name,
-        imageUrl: fileUrl
+        imageUrl: fileUrl,
       },
     });
-    
+
     return NextResponse.json(diagram);
   } catch (error) {
     console.error("Update error:", error);
-    return NextResponse.json({ error: "Failed to update diagram" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update diagram" },
+      { status: 500 }
+    );
   }
 }
-

@@ -29,12 +29,14 @@ import {
 interface Comment {
   id: string;
   content: string;
-  createdAt: string;
+  createdAt: Date; // Changed to Date
+  updatedAt: Date; // Added
+  projectId: string; // Added
   userId: string;
   user: {
     id: string;
-    name: string;
-    image: string;
+    name: string | null; // Changed to string | null
+    image: string | null; // Changed to string | null
   };
   _count: {
     likes: number;
@@ -74,7 +76,7 @@ export default function ProjectComments({ projectId, initialComments = [] }: Pro
     }
   };
 
-  const handleSubmitComment = async (e) => {
+  const handleSubmitComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!session?.user) {
@@ -130,11 +132,11 @@ export default function ProjectComments({ projectId, initialComments = [] }: Pro
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (date: Date) => {
     try {
-      return format(new Date(dateString), "MMM d, yyyy 'at' h:mm a");
+      return format(date, "MMM d, yyyy 'at' h:mm a");
     } catch (e) {
-      return dateString;
+      return date.toISOString(); // Fallback to ISO string
     }
   };
 

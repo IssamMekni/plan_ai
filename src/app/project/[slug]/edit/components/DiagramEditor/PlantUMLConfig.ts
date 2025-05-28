@@ -1,4 +1,3 @@
-// PlantUMLConfig.ts
 import type * as Monaco from "monaco-editor";
 
 export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
@@ -193,6 +192,15 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
   // PlantUML completions provider
   monaco.languages.registerCompletionItemProvider("plantuml", {
     provideCompletionItems: (model, position) => {
+      // Get the word at the current position to determine the range
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      };
+
       const suggestions = [
         // Diagram types
         {
@@ -200,12 +208,14 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "startuml\n\n\nenduml",
           documentation: "Start a PlantUML diagram",
+          range,
         },
         {
           label: "enduml",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "enduml",
           documentation: "End a PlantUML diagram",
+          range,
         },
 
         // Sequence diagram
@@ -213,65 +223,65 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "actor",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "actor ${1:name}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add an actor to the diagram",
+          range,
         },
         {
           label: "participant",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: 'participant "${1:name}"',
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add a participant to the diagram",
+          range,
         },
         {
           label: "->",
           kind: monaco.languages.CompletionItemKind.Operator,
           insertText: "${1:actor} -> ${2:target} : ${3:message}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add a message arrow",
+          range,
         },
         {
           label: "->>",
           kind: monaco.languages.CompletionItemKind.Operator,
           insertText: "${1:actor} ->> ${2:target} : ${3:asynchronous message}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add an asynchronous message arrow",
+          range,
         },
         {
           label: "-->",
           kind: monaco.languages.CompletionItemKind.Operator,
           insertText: "${1:actor} --> ${2:target} : ${3:dotted message}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add a dotted message arrow",
+          range,
         },
         {
           label: "note",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "note ${1|left,right,over|} ${2:participant} : ${3:text}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add a note to the diagram",
+          range,
         },
         {
           label: "activate",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "activate ${1:participant}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Activate a lifeline",
+          range,
         },
         {
           label: "deactivate",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "deactivate ${1:participant}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Deactivate a lifeline",
+          range,
         },
 
         // Class diagram
@@ -279,33 +289,33 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "class",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "class ${1:name} {\n\t${2:attribute}\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define a class",
+          range,
         },
         {
           label: "interface",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "interface ${1:name} {\n\t${2:method()}\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define an interface",
+          range,
         },
         {
           label: "extends",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "${1:class} extends ${2:parent}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define inheritance relationship",
+          range,
         },
         {
           label: "implements",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "${1:class} implements ${2:interface}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define implementation relationship",
+          range,
         },
 
         // Use case diagram
@@ -313,9 +323,9 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "usecase",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: 'usecase "${1:name}"',
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define a use case",
+          range,
         },
 
         // Skinparam
@@ -323,18 +333,18 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "skinparam",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "skinparam ${1:parameter} ${2:value}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Change diagram styling",
+          range,
         },
         {
           label: "skinparam sequence",
           kind: monaco.languages.CompletionItemKind.Snippet,
           insertText:
             "skinparam sequence {\n\tArrowColor ${1:DeepSkyBlue}\n\tLifeLineBorderColor ${2:blue}\n\tParticipantBorderColor ${3:DeepSkyBlue}\n\tParticipantBackgroundColor ${4:DodgerBlue}\n\tParticipantFontColor ${5:white}\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Set sequence diagram styling",
+          range,
         },
 
         // Component diagram
@@ -342,17 +352,17 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "component",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "component ${1:name}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define a component",
+          range,
         },
         {
           label: "database",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "database ${1:name}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Define a database",
+          range,
         },
 
         // Common elements
@@ -360,17 +370,17 @@ export const configurePlantUMLLanguage = (monaco: typeof Monaco) => {
           label: "title",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "title ${1:Diagram Title}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Set diagram title",
+          range,
         },
         {
           label: "footer",
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: "footer ${1:footer text}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: "Add footer to diagram",
+          range,
         },
       ];
 

@@ -51,8 +51,13 @@ const MePage = async () => {
           {projects.map((project) => (
             <ProjectBtn
               key={project.id}
-              project={{ ...project, link: `/project/${project.id}` }}
-            />
+              project={{ 
+                ...project, 
+                link: `/project/${project.id}`,
+                commentCount: project._count.comments,
+                createdAt: project.createdAt.toISOString(),
+                description: project.description || undefined
+              }}            />
           ))}
         </div>
       </div>

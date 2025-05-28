@@ -40,6 +40,8 @@ import LikeButton from "@/components/LikeProject";
 import { DeleteProjectButton } from "./Delete";
 import DownloadButton from "./DownloadButton";
 import CopyButton from "./CopyButton";
+import { get } from "http";
+import getImgDiagramsURL from "@/db/getImgDiagramsURL";
 // import { DeleteProjectButton } from "../project/[slug]/Delete";
 
 interface ProjectInfoCardProps {
@@ -55,7 +57,7 @@ export default function ProjectInfoCard({
   likeCount,
   slug,
 }: ProjectInfoCardProps) {
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: Date | string): string => {
     return format(new Date(dateString), "MMM d, yyyy");
   };
 
@@ -116,7 +118,7 @@ export default function ProjectInfoCard({
             <div className="w-full text-center grid grid-cols-2 gap-2">
               <DeleteProjectButton projectId={project.id} />
               <DownloadButton projectId={project.id} />
-              <CopyButton projectId={project.id} />
+              <CopyButton projectId={project.id} userId={project.userId} />
             </div>
           </>
         ) : (
@@ -127,7 +129,7 @@ export default function ProjectInfoCard({
                 Share
               </Button>
               <DownloadButton projectId={project.id} />
-              <CopyButton  projectId={project.id}/>
+              <CopyButton projectId={project.id} userId={project.userId} />
             </div>
           </>
         )}
@@ -154,7 +156,8 @@ function ProjectVisibilityBadge({ isPublic }: { isPublic: boolean }) {
   );
 }
 
-function ProjectEditDialog({ project }: { project: Project }) {
+async function ProjectEditDialog({ project }: { project: Project }) {
+  const imgURLs = (await getImgDiagramsURL(project.id)).map((e) => e.imageUrl);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -167,6 +170,7 @@ function ProjectEditDialog({ project }: { project: Project }) {
           <DialogTitle>Edit project</DialogTitle>
           <DialogDescription>
             Make changes to your project here. Click save when you're done.
+            {/* {JSON.stringify(imgURLs)} */}
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit}>
@@ -182,26 +186,27 @@ function ProjectEditDialog({ project }: { project: Project }) {
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Username
+            <div className="">
+              <Label htmlFor="project-description" className="text-right">
+                description
               </Label>
               <Textarea
                 id="project-description"
                 name="project-description"
-                defaultValue={project?.description}
+                defaultValue={project?.description || ""}
                 className="col-span-3"
               />
-              <Label htmlFor="username" className="text-right">
-                Username
+              <Label htmlFor="project-visibility" className="text-right">
+                visibility
               </Label>
               <RadioGroup
                 defaultValue={project.isPublic ? "true" : "false"}
                 name="project-visibility"
+                className="col-span-3 flex"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 ">
                   <RadioGroupItem value="false" id="r1" />
-                  <Label htmlFor="r1">Privet</Label>
+                  <Label htmlFor="r1">Private</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="true" id="r2" />
@@ -209,6 +214,25 @@ function ProjectEditDialog({ project }: { project: Project }) {
                 </div>
               </RadioGroup>
               <input type="hidden" name="project-id" value={project.id} />
+            </div>
+            <div>
+              <Label htmlFor="project-image" className="text-right">
+                project image
+              </Label>
+              <RadioGroup
+                defaultValue={project.imageUrl || imgURLs[0]}
+                name="project-image"
+                className="flex flex-wrap"
+              >
+                {imgURLs.map((url, index) => (
+                  <div className="flex  items-center space-x-2">
+                    <RadioGroupItem value={url} id={`img-${index}`} />
+                    <label htmlFor={`img-${index}`}>
+                      <img src={url} alt="" className="h-32 w-32 mr-2" />
+                    </label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
           </div>
           <DialogFooter>

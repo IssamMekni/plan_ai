@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function InlineSvg({ url }) {
+function InlineSvg({ url }: { url: string }) {
   const [svgContent, setSvgContent] = useState("");
 
   useEffect(() => {

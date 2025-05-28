@@ -1,10 +1,10 @@
 import ProjectBtn from "@/components/ProjectCart";
 import getPublicProjects from "@/db/getPublicProjects";
 
-
 const MePage = async () => {
-  let projects= await getPublicProjects()
-  console.log(projects);  
+  let projects = await getPublicProjects();
+  console.log(projects);
+  
   return (
     <div>
       <div className="flex flex-col gap-4 container m-auto">
@@ -13,7 +13,13 @@ const MePage = async () => {
           {projects.map((project) => (
             <ProjectBtn
               key={project.id}
-              project={{ ...project, link: `/project/${project.id}` }}
+              project={{ 
+                ...project, 
+                link: `/project/${project.id}`,
+                commentCount: project._count.comments,
+                createdAt: project.createdAt.toISOString(),
+                description: project.description || undefined
+              }}
             />
           ))}
         </div>
@@ -21,4 +27,5 @@ const MePage = async () => {
     </div>
   );
 };
+
 export default MePage;
