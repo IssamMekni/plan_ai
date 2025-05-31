@@ -5,8 +5,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatOllama } from "@langchain/ollama";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
+// import { PromptTemplate } from "@langchain/core/prompts";
+// import { StringOutputParser } from "@langchain/core/output_parsers";
 import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextAuth';
@@ -239,7 +239,7 @@ Guidelines:
         // Save the last two messages (user and AI) to database
         const messagesToSave = conversation.slice(-2).filter(msg => msg.role !== 'system');
         
-        await prisma.diagramConversationMessage.createMany({
+        await prisma.conversationMessage.createMany({
           data: messagesToSave.map(msg => ({
             conversationId: dbConversation!.id,
             role: msg.role,
@@ -250,18 +250,18 @@ Guidelines:
         });
 
         // Clean up old messages if conversation is too long
-        const messageCount = await prisma.diagramConversationMessage.count({
+        const messageCount = await prisma.conversationMessage.count({
           where: { conversationId: dbConversation.id }
         });
 
         if (messageCount > maxHistoryLength) {
-          const oldMessages = await prisma.diagramConversationMessage.findMany({
+          const oldMessages = await prisma.conversationMessage.findMany({
             where: { conversationId: dbConversation.id },
             orderBy: { timestamp: 'asc' },
             take: messageCount - maxHistoryLength
           });
 
-          await prisma.diagramConversationMessage.deleteMany({
+          await prisma.conversationMessage.deleteMany({
             where: {
               id: { in: oldMessages.map(msg => msg.id) }
             }
@@ -322,7 +322,7 @@ export async function DELETE(request: NextRequest) {
       });
 
       if (conversation) {
-        await prisma.diagramConversationMessage.deleteMany({
+        await prisma.conversationMessage.deleteMany({
           where: { conversationId: conversation.id }
         });
         

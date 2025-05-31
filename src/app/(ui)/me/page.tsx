@@ -31,17 +31,34 @@ const MePage = async () => {
           <EditProfileDialog user={user} />
         </div>
         
-        <div className="flex items-center gap-4 p-4 border rounded-lg">
-          <Avatar className="w-16 h-16">
-            <AvatarImage src={user.image || ""} alt={user.name || "User"} />
-            <AvatarFallback>{user.name?.substring(0, 2) || "U"}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="text-xl font-medium">{user.name || "Anonymous User"}</h2>
-            <p className="text-muted-foreground">{user.email}</p>
+        {/* Enhanced profile card with description */}
+        <div className="flex flex-col gap-4 p-6 border rounded-lg bg-card">
+          <div className="flex items-start gap-4">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+              <AvatarFallback>{user.name?.substring(0, 2) || "U"}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h2 className="text-xl font-medium">{user.name || "Anonymous User"}</h2>
+              <p className="text-muted-foreground">{user.email}</p>
+            </div>
           </div>
+          
+          {/* Description section */}
+          {user.description && user.description.trim() && user.description !== " " ? (
+            <div className="mt-2">
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">About</h3>
+              <p className="text-sm leading-relaxed">{user.description}</p>
+            </div>
+          ) : (
+            <div className="mt-2">
+              <p className="text-sm text-muted-foreground italic">
+                No description yet. Click "Edit Profile" to add one!
+              </p>
+            </div>
+          )}
         </div>
-        
+
         <div className="flex items-center justify-between mt-8">
           <h2 className="text-2xl font-bold">My Projects</h2>
           <ProjectDialog />
@@ -51,13 +68,14 @@ const MePage = async () => {
           {projects.map((project) => (
             <ProjectBtn
               key={project.id}
-              project={{ 
-                ...project, 
+              project={{
+                ...project,
                 link: `/project/${project.id}`,
                 commentCount: project._count.comments,
                 createdAt: project.createdAt.toISOString(),
                 description: project.description || undefined
-              }}            />
+              }} 
+            />
           ))}
         </div>
       </div>

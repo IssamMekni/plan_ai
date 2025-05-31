@@ -15,7 +15,7 @@ export async function handleSubmit(formData: FormData) {
   const projectId = formData.get("project-id") as string;
   const isPublic = formData.get("project-visibility") as string;  
   const imageUrl = formData.get("project-image") as string;
-  console.log(imageUrl);
+  console.log(`${name} ${description} ${projectId} ${isPublic} ${imageUrl}`)
   
   
   // Save to database

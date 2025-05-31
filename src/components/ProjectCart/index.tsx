@@ -66,7 +66,7 @@ const ProjectCart: React.FC<ProjectCartProps> = ({ project }) => {
           />
           
           <div className="">
-            {project.diagrams.length > 0 && (
+            {(project.diagrams.length > 0) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
