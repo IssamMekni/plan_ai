@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SignoutButton from "./(auth)/SignoutButton";
+// import SignoutButton from "./(auth)/SignoutButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 
-export default async function UserAvatar() {
-  ;
+export default async function Navbar() {
   const session = await getServerSession(authOptions);
-  
+
   return (
     <div>
       <div className="w-full ">
@@ -23,7 +22,7 @@ export default async function UserAvatar() {
                 </li>
               </>
             ) : (
-              <SignoutButton />
+              <div></div>
             )}
           </ul>
         </nav>

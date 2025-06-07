@@ -265,7 +265,7 @@ export default function AiAssistant({
   };
 
   return (
-    <Card className="p-4">
+    <Card className=" -z-50">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xl font-semibold">
@@ -421,7 +421,6 @@ export default function AiAssistant({
             Clear Input
           </Button>
         </div>
-
         <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
           Press Enter to send, Shift+Enter for new line
           {conversationHistory.length > 0 && (

@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/nextAuth";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
+import Navbar from "@/app/Navbar2";
+
 import {
   SidebarInset,
   SidebarProvider,
@@ -33,7 +35,11 @@ export default async function Page({
           </SidebarInset>
         </SidebarProvider>
       ) : (
-        children
+        <>
+      <Navbar/>
+
+        {children}
+        </>
       )}
     </>
   );

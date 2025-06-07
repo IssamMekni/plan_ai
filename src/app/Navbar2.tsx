@@ -3,9 +3,47 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Navigation items configuration
+  const navItems = [
+    { name: "Features", href: "/#features" },
+    { name: "How It Works", href: "/#how-it-works" },
+    { name: "Community", href: "/#community" },
+  ];
+
+  // Helper function to determine if we should use Link or anchor tag
+  const renderNavItem = (item: { name: string; href: string; }, isMobile = false) => {
+    const baseClasses = isMobile 
+      ? "block hover:text-blue-400 transition-colors"
+      : "hover:text-blue-400 transition-colors";
+
+    // Use Link for community route, anchor tag for root route
+    if (pathname === "/community" && item.name === "Community") {
+      return (
+        <Link key={item.name} href={item.href} className={baseClasses}>
+          {item.name}
+        </Link>
+      );
+    } else if (pathname === "/" || pathname !== "/community") {
+      return (
+        <a key={item.name} href={item.href} className={baseClasses}>
+          {item.name}
+        </a>
+      );
+    } else {
+      // Default to Link for other routes
+      return (
+        <Link key={item.name} href={item.href} className={baseClasses}>
+          {item.name}
+        </Link>
+      );
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
@@ -32,36 +70,14 @@ export default function Navbar() {
             </span>
           </div>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
-            <a
-              href="#features"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              className="hover:text-blue-400 transition-colors"
-            >
-              How It Works
-            </a>
-            <a
-              href="#community"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Community
-            </a>
-            <a
-              href="#pricing"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Pricing
-            </a>
+            {navItems.map((item) => renderNavItem(item))}
           </div>
 
           <div className="hidden md:block">
             <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700">
-            <Link href="/signin">sign in</Link>
+              <Link href="/signin">sign in</Link>
             </Button>
           </div>
 
@@ -82,30 +98,7 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-slate-900 border-t border-slate-800">
           <div className="px-4 py-4 space-y-4">
-            <a
-              href="#features"
-              className="block hover:text-blue-400 transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              className="block hover:text-blue-400 transition-colors"
-            >
-              How It Works
-            </a>
-            <a
-              href="#community"
-              className="block hover:text-blue-400 transition-colors"
-            >
-              Community
-            </a>
-            <a
-              href="#pricing"
-              className="block hover:text-blue-400 transition-colors"
-            >
-              Pricing
-            </a>
+            {navItems.map((item) => renderNavItem(item, true))}
             <Button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700">
               <Link href="/signin">sign in</Link>
             </Button>

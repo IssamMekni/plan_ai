@@ -6,9 +6,9 @@ interface DiagramPreviewProps {
   
   export function DiagramPreview({ diagramUrl, diagramName }: DiagramPreviewProps) {
     return (
-      <div className="p-4 overflow-auto bg-background">
+      <div className="p-4 overflow-auto bg-background z-10">
         <div className="flex flex-col h-full">
-          <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden bg-white">
+          <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden bg-white" style={{zIndex: 10}}>
             <img
               src={diagramUrl}
               alt={diagramName}

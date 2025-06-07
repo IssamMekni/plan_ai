@@ -291,9 +291,8 @@ export default function ProjectEditPage() {
                 isProcessing={isProcessing}
                 code={code}
                 setCode={setCode}
-              />
-              
-              <AiAssistant
+              >
+                <AiAssistant
                 onSuggestionApplied={handleAiSuggestion}
                 diagramName={activeDiagram.name}
                 currentDiagramCode={code}
@@ -301,7 +300,8 @@ export default function ProjectEditPage() {
                 model="gemini-2.0-flash" // You might want to make this configurable
                 diagramId={activeDiagram.id} // Pass the diagram ID for conversation persistence
                 ollamaBaseUrl="http://localhost:11434" // Make this configurable if needed
-              />
+                />
+                </DiagramEditor>
             </div>
           ) : (
             <div className="border rounded-md p-8 text-center text-muted-foreground">

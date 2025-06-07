@@ -5,7 +5,7 @@ import { Save, RefreshCw } from "lucide-react";
 
 interface DiagramToolbarProps {
   viewMode: "split" | "code" | "preview";
-  setViewMode: (mode: "split" | "code" | "preview") => void;
+  setViewMode: (mode: "split" | "preview") => void;
   onSave: () => void;
   isProcessing: boolean;
   diagramName: string;
@@ -38,14 +38,6 @@ export function DiagramToolbar({
             }`}
           >
             Split View
-          </button>
-          <button
-            onClick={() => setViewMode("code")}
-            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
-              viewMode === "code" ? "bg-primary text-primary-foreground" : "hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            Code Only
           </button>
           <button
             onClick={() => setViewMode("preview")}

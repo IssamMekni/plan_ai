@@ -7,8 +7,8 @@ const MePage = async () => {
   
   return (
     <div>
-      <div className="flex flex-col gap-4 container m-auto">
-        <h2>Me Page</h2>
+      <div className="flex flex-col gap-4 container m-auto mt-20">
+        <h2>Community Page</h2>
         <div className="grid grid-cols-2 gap-4 container m-auto">
           {projects.map((project) => (
             <ProjectBtn

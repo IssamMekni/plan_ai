@@ -68,8 +68,8 @@ export async function AppSidebar() {
         {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
       <SidebarContent className="bg-background">
-        <NavMain items={navMain} />
         <NavPages pages={pages} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter className="bg-background">
         {user && <NavUser user={user} />}

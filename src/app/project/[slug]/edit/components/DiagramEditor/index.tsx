@@ -41,15 +41,14 @@ export default function DiagramEditor({
   const [viewMode, setViewMode] = useState<"split" | "code" | "preview">(
     "split"
   );
-  const [editorMode, setEditorMode] = useState<"editor" | "ai" | "both">(
-    "editor"
-  );
+  const [editorMode, setEditorMode] = useState<"editor" | "ai">("editor");
   const [diagramUrl, setDiagramUrl] = useState<string | null>("");
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setCode(diagram.code);
   }, [diagram]);
+
   const fetchImgDiagram = async (code: string) => {
     try {
       const response = await fetch(`/api/diagrams/image`, {
@@ -88,7 +87,7 @@ export default function DiagramEditor({
   };
 
   return (
-    <Card className="h-full border bg-card text-card-foreground shadow-sm">
+    <Card className="h-full border bg-card text-card-foreground shadow-sm z-10">
       <DiagramToolbar
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -98,187 +97,66 @@ export default function DiagramEditor({
         updatedAt={diagram.updatedAt}
       />
 
-      {viewMode === "split" ? (
-        <div className="h-[600px]">
-          <ResizablePanelGroup direction="horizontal">
-            {/* Left panel */}
-            <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
-              <div className="flex flex-col h-full">
-                {/* Custom Tailwind Tabs */}
-                <div className="flex border-b">
-                  <button
-                    className={`px-4 py-2 font-medium text-sm focus:outline-none ${
-                      editorMode === "editor" || editorMode === "both"
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() =>
-                      setEditorMode((prevMode) =>
-                        prevMode === "ai" ? "both" : "editor"
-                      )
-                    }
-                  >
-                    PlantUML Editor
-                  </button>
-                  <button
-                    className={`px-4 py-2 font-medium text-sm focus:outline-none ${
-                      editorMode === "ai" || editorMode === "both"
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() =>
-                      setEditorMode((prevMode) =>
-                        prevMode === "editor" ? "both" : "ai"
-                      )
-                    }
-                  >
-                    AI Assistant
-                  </button>
-                  {editorMode === "both" && (
-                    <button
-                      className="ml-auto px-4 py-2 text-xs text-gray-500 hover:text-gray-700"
-                      onClick={() => setEditorMode("editor")}
-                    >
-                      Reset View
-                    </button>
-                  )}
-                </div>
-
-                {/* Tab Content */}
-                <div className="flex-1 overflow-hidden">
-                  {editorMode === "editor" && (
-                    <div className="h-full">
-                      <CodeEditor code={code} onChange={handleChange} />
-                    </div>
-                  )}
-
-                  {editorMode === "ai" && (
-                    <div className="h-full">{children}</div>
-                  )}
-
-                  {editorMode === "both" && (
-                    <ResizablePanelGroup direction="vertical">
-                      {/* Editor panel */}
-                      <ResizablePanel
-                        defaultSize={50}
-                        minSize={20}
-                        maxSize={80}
-                      >
-                        <CodeEditor code={code} onChange={handleChange} />
-                      </ResizablePanel>
-
-                      <ResizableHandle />
-
-                      {/* AI Assistant panel */}
-                      <ResizablePanel defaultSize={50}>
-                        {children}
-                      </ResizablePanel>
-                    </ResizablePanelGroup>
-                  )}
-                </div>
+      <div className={`h-[600px] ${viewMode === "split" ? "" : "hidden"}`}>
+        <ResizablePanelGroup direction="horizontal">
+          {/* Left panel */}
+          <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
+            <div className="flex flex-col h-full">
+              {/* Custom Tailwind Tabs */}
+              <div className="flex border-b">
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none ${
+                    editorMode === "editor"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                  onClick={() => setEditorMode("editor")}
+                >
+                  PlantUML Editor
+                </button>
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none ${
+                    editorMode === "ai"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                  onClick={() => setEditorMode("ai")}
+                >
+                  AI Assistant
+                </button>
               </div>
-            </ResizablePanel>
 
-            <ResizableHandle />
-
-            {/* Right panel - Preview */}
-            <ResizablePanel defaultSize={50}>
-              <DiagramPreview
-                diagramUrl={""+diagramUrl}
-                diagramName={diagram.name}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-      ) : (
-        <div className="h-[600px]">
-          {viewMode === "code" && (
-            <div className="h-full">
-              <div className="flex flex-col h-full">
-                {/* Custom Tailwind Tabs */}
-                <div className="flex border-b">
-                  <button
-                    className={`px-4 py-2 font-medium text-sm focus:outline-none ${
-                      editorMode === "editor" || editorMode === "both"
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() =>
-                      setEditorMode((prevMode) =>
-                        prevMode === "ai" ? "both" : "editor"
-                      )
-                    }
-                  >
-                    PlantUML Editor
-                  </button>
-                  <button
-                    className={`px-4 py-2 font-medium text-sm focus:outline-none ${
-                      editorMode === "ai" || editorMode === "both"
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() =>
-                      setEditorMode((prevMode) =>
-                        prevMode === "editor" ? "both" : "ai"
-                      )
-                    }
-                  >
-                    AI Assistant
-                  </button>
-                  {editorMode === "both" && (
-                    <button
-                      className="ml-auto px-4 py-2 text-xs text-gray-500 hover:text-gray-700"
-                      onClick={() => setEditorMode("editor")}
-                    >
-                      Reset View
-                    </button>
-                  )}
+              {/* Tab Content */}
+              <div className={`flex-1${editorMode === "editor" ? "" : "overflow-hidden"}`}>
+                <div className={`h-full ${editorMode === "editor" ? "" : "hidden"}`}>
+                  <CodeEditor code={code} onChange={handleChange} />
                 </div>
 
-                {/* Tab Content for code-only view */}
-                <div className="flex-1 ">
-                  {editorMode === "editor" && (
-                    <div className="h-full">
-                      <CodeEditor code={code} onChange={handleChange} />
-                    </div>
-                  )}
-
-                  {editorMode === "ai" && (
-                    <div className="h-full">{children}</div>
-                  )}
-
-                  {editorMode === "both" && (
-                    <ResizablePanelGroup direction="vertical">
-                      {/* Editor panel */}
-                      <ResizablePanel
-                        defaultSize={50}
-                        minSize={20}
-                        maxSize={80}
-                      >
-                        <CodeEditor code={code} onChange={handleChange} />
-                      </ResizablePanel>
-
-                      <ResizableHandle />
-
-                      {/* AI Assistant panel */}
-                      <ResizablePanel defaultSize={50}>
-                        {children}
-                      </ResizablePanel>
-                    </ResizablePanelGroup>
-                  )}
+                <div className={`h-full ${editorMode === "ai" ? "" : "hidden"}`}>
+                  {children}
                 </div>
               </div>
             </div>
-          )}
+          </ResizablePanel>
 
-          {viewMode === "preview" && (
+          <ResizableHandle />
+
+          {/* Right panel - Preview */}
+          <ResizablePanel defaultSize={50}>
             <DiagramPreview
               diagramUrl={""+diagramUrl}
               diagramName={diagram.name}
             />
-          )}
-        </div>
-      )}
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      <div className={`h-[600px] ${viewMode === "preview" ? "" : "hidden"}`}>
+        <DiagramPreview
+          diagramUrl={""+diagramUrl}
+          diagramName={diagram.name}
+        />
+      </div>
     </Card>
   );
 }
